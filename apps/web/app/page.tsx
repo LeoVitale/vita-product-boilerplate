@@ -1,6 +1,6 @@
 'use client';
 
-import { useGetTasks } from '@/application/hooks/use-get-tasks';
+import { useGetTasks } from '@repo/application';
 import styles from './page.module.css';
 
 export default function Home() {
