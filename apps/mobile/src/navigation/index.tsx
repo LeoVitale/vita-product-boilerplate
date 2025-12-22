@@ -13,9 +13,19 @@ import { Profile } from './screens/Profile';
 import { Settings } from './screens/Settings';
 import { Updates } from './screens/Updates';
 import { NotFound } from './screens/NotFound';
+import { TasksScreen } from '../screens/TasksScreen';
 
 const HomeTabs = createBottomTabNavigator({
   screens: {
+    Tasks: {
+      screen: TasksScreen,
+      options: {
+        title: 'Tasks',
+        tabBarIcon: ({ color, size }) => (
+          <Text style={{ fontSize: size, color }}>✓</Text>
+        ),
+      },
+    },
     Home: {
       screen: Home,
       options: {
