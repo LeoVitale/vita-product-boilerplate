@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
-import { TaskRepositoryInterface } from '../../domain/repositories/task-repository-interface';
-import { Task } from '../../domain/entities/task';
-import { apolloClient } from '../graphql/apollo-client';
+import { TaskRepositoryInterface } from '@/domain/repositories/task-repository-interface';
+import { Task } from '@/domain/entities/task';
+import { apolloClient } from '@/infrastructure/graphql/apollo-client';
 
 export class TaskRepositoryImpl implements TaskRepositoryInterface {
   async list(): Promise<Task[]> {
@@ -19,6 +19,6 @@ export class TaskRepositoryImpl implements TaskRepositoryInterface {
       query,
     });
     
-    return data.tasks;
+    return data?.tasks ?? [];
   }
 }

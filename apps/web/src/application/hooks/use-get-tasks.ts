@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
-import { Task } from '../../domain/entities/task';
+import { Task } from '@/domain/entities/task';
 
 export const GET_TASKS = gql`
   query GetTasks {

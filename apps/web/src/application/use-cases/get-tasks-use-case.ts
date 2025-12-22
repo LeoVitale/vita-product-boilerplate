@@ -1,5 +1,5 @@
-import { Task } from '../../domain/entities/task';
-import { TaskRepositoryInterface } from '../../domain/repositories/task-repository-interface';
+import { Task } from '@/domain/entities/task';
+import { TaskRepositoryInterface } from '@/domain/repositories/task-repository-interface';
 
 export interface IGetTasks {
   execute(): Promise<Task[]>;
