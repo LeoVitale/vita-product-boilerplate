@@ -1,0 +1,22 @@
+Scope: all 7 workspace projects
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Progress: resolved 236, reused 226, downloaded 3, added 0
+Progress: resolved 1051, reused 1021, downloaded 24, added 0
+Progress: resolved 1132, reused 1039, downloaded 54, added 0
+Progress: resolved 1240, reused 1081, downloaded 103, added 0
+Progress: resolved 1292, reused 1088, downloaded 150, added 0
+ WARN  11 deprecated subdependencies found: @apollo/server-plugin-landing-page-graphql-playground@4.0.1, @babel/plugin-proposal-class-properties@7.18.6, @babel/plugin-proposal-object-rest-spread@7.20.7, @graphql-tools/prisma-loader@8.0.17, glob@7.2.3, inflight@1.0.6, lodash.omit@4.5.0, node-domexception@1.0.0, q@1.5.1, stringify-package@1.0.1, subscriptions-transport-ws@0.11.0
+Packages: +194
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1295, reused 1088, downloaded 154, added 65
+Progress: resolved 1295, reused 1088, downloaded 155, added 189, done
+. prepare$ husky
+. prepare: Done
+
+ WARN  Issues with peer dependencies found
+apps/api
+└─┬ @nestjs/apollo 13.2.3
+  └─┬ @apollo/server-plugin-landing-page-graphql-playground 4.0.1
+    └── ✕ unmet peer @apollo/server@^4.0.0: found 5.2.0
+
+Done in 8s
