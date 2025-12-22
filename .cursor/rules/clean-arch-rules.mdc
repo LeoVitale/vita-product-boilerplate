@@ -9,22 +9,26 @@ This workspace follows Clean Architecture with SOLID principles and Apollo Clien
 ## Layer Structure
 
 ```
-apps/web/src/
-├── domain/              # Entities and repository interfaces
-├── application/         # Use cases and Apollo Client hooks
-├── infrastructure/      # Implementations (Apollo Client, repositories)
-└── presentation/        # React components
+packages/
+├── domain/              # Domain entities + repository interfaces (contracts)
+├── application/         # Use cases + Apollo Client hooks (orchestration)
+├── graphql/             # Generated GraphQL documents/types (shared)
+└── ui/                  # Shared UI primitives (optional)
+
+apps/
+├── web/                 # Presentation (Next.js) + web-only infrastructure wiring
+└── mobile/              # Presentation (Expo) + mobile-only infrastructure wiring
 ```
 
 ## Rules by Layer
 
-### Domain Layer (`src/domain`)
+### Domain Layer (`@repo/domain`)
 
 - ✅ Define TypeScript interfaces for entities
 - ✅ Declare repository interfaces (abstract contracts)
 - ❌ FORBIDDEN: Implementations, frameworks, Apollo Client, business logic
 
-### Application Layer (`src/application`)
+### Application Layer (`@repo/application`)
 
 #### Use Cases (`use-cases/`)
 
@@ -36,34 +40,36 @@ apps/web/src/
 #### Hooks (`hooks/`)
 
 - ✅ Use `useQuery` and `useMutation` from `@apollo/client/react`
-- ✅ Define GraphQL queries using `gql`
+- ✅ Use GraphQL documents from `@repo/graphql` (generated) or define queries using `gql` when needed
 - ✅ Return standard format: `{ data, isLoading, isError, error, refetch }`
 - ✅ Normalize Apollo data to domain entities
 - ❌ FORBIDDEN: Complex business logic (should go to use cases)
 
-### Infrastructure Layer (`src/infrastructure`)
+### Infrastructure Layer (per-app wiring)
 
-- ✅ Implement repository interfaces
-- ✅ Configure Apollo Client
-- ✅ Use Apollo Client to make queries/mutations
-- ❌ FORBIDDEN: React components, Apollo hooks directly, business logic, use case dependencies
+- ✅ Configure Apollo Client (web/mobile specific endpoints, auth links, cache policies)
+- ✅ Provide app composition/wiring (Providers, environment variables)
+- ❌ FORBIDDEN: Business logic (belongs in `@repo/application` use cases)
+- ❌ FORBIDDEN: Domain entity definitions (belongs in `@repo/domain`)
 
-### Presentation Layer (`src/presentation`)
+### Presentation Layer (apps)
 
 - ✅ React components
-- ✅ Use hooks from the application layer
-- ❌ FORBIDDEN: Call repositories or use cases directly, define GraphQL queries
+- ✅ Use hooks from `@repo/application`
+- ✅ Import domain types from `@repo/domain` (for typing only)
+- ❌ FORBIDDEN: Define GraphQL queries/mutations
+- ❌ FORBIDDEN: Call repositories/use cases directly (components should call hooks)
 
 ## Dependency Flow
 
 ```
-Presentation → Application → Domain ← Infrastructure
+apps (presentation) → @repo/application → @repo/domain
+apps (infrastructure wiring) ──configures──> Apollo Client
 ```
 
-- Domain does not import from any other layer
-- Application imports only from Domain
-- Infrastructure imports only from Domain
-- Presentation imports only from Application and Domain (for types)
+- `@repo/domain` does not import from any other layer
+- `@repo/application` imports from `@repo/domain` (and `@repo/graphql` for documents/types)
+- Apps import from `@repo/application` and `@repo/domain` (types) only
 
 ## Conventions
 
@@ -79,7 +85,8 @@ Presentation → Application → Domain ← Infrastructure
 
 ### GraphQL Query Structure
 
-Centralize queries in hook files or in `src/application/graphql/queries.ts`:
+Centralize queries in `@repo/graphql` (generated from `packages/graphql/src/**/*.graphql`).
+If a query is app-specific, it should still live in `@repo/application` (hook file), not in an app component.
 
 ```typescript
 import { gql } from '@apollo/client';
@@ -98,29 +105,18 @@ export const GET_TASKS = gql`
 ## Correct Hook Example
 
 ```typescript
-// src/application/hooks/use-get-tasks.ts
-import { gql } from '@apollo/client';
+// packages/application/src/hooks/use-get-tasks.ts
 import { useQuery } from '@apollo/client/react';
-import { Task } from '../../domain/entities/task';
-
-export const GET_TASKS = gql`
-  query GetTasks {
-    tasks {
-      id
-      title
-      completed
-    }
-  }
-`;
+import { GetTasksDocument } from '@repo/graphql';
+import type { Task } from '@repo/domain';
 
 export function useGetTasks(options?: Parameters<typeof useQuery>[1]) {
-  const { data, loading, error, refetch } = useQuery<{ tasks: Task[] }>(
-    GET_TASKS,
-    options,
-  );
+  const { data, loading, error, refetch } = useQuery(GetTasksDocument, options);
 
   return {
-    data: data?.tasks,
+    data: data?.tasks?.map((t) => ({ id: t.id, title: t.title, completed: t.completed })) as
+      | Task[]
+      | undefined,
     isLoading: loading,
     isError: !!error,
     error,
@@ -132,57 +128,23 @@ export function useGetTasks(options?: Parameters<typeof useQuery>[1]) {
 ## Example with Use Case (when there is business logic)
 
 ```typescript
-// src/application/hooks/use-get-tasks.ts
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
-import { Task } from '../../domain/entities/task';
-import { GetTasks } from '../use-cases/get-tasks-use-case';
-import { TaskRepositoryImpl } from '../../infrastructure/repositories/task-repository-impl';
-
-export const GET_TASKS = gql`
-  query GetTasks {
-    tasks {
-      id
-      title
-      completed
-    }
-  }
-`;
-
-const getTasksUseCase = new GetTasks(new TaskRepositoryImpl());
-
-export function useGetTasks(options?: Parameters<typeof useQuery>[1]) {
-  const { data, loading, error, refetch } = useQuery<{ tasks: Task[] }>(
-    GET_TASKS,
-    {
-      ...options,
-      onCompleted: (data) => {
-        // If you need to process data through the use case
-        getTasksUseCase.execute();
-        options?.onCompleted?.(data);
-      },
-    },
-  );
-
-  return {
-    data: data?.tasks,
-    isLoading: loading,
-    isError: !!error,
-    error,
-    refetch,
-  };
-}
+// packages/application/src/hooks/use-get-tasks.ts
+// - hook talks to Apollo
+// - use case holds business rules (filtering, validation, orchestration, etc.)
+//
+// Pattern:
+// const useCase = new SomeUseCase(/* dependencies */);
+// const result = useCase.execute(/* inputs */);
 ```
 
 ## Checklist for Creating a New Feature
 
-- [ ] Entity in `domain/entities/`
-- [ ] Repository interface in `domain/repositories/` (if needed)
-- [ ] Use case in `application/use-cases/` (if there is business logic)
-- [ ] Hook in `application/hooks/` using Apollo Client
-- [ ] GraphQL query defined in the hook or in a separate file
-- [ ] Repository implementation in `infrastructure/repositories/` (if using use case)
-- [ ] Component in `presentation/components/` using hook
+- [ ] Entity in `packages/domain/src/entities/`
+- [ ] Repository interface in `packages/domain/src/repositories/` (if needed)
+- [ ] Use case in `packages/application/src/use-cases/` (if there is business logic)
+- [ ] Hook in `packages/application/src/hooks/` using Apollo Client
+- [ ] GraphQL document in `packages/graphql/src/**/*.graphql` (shared) or inside the hook (if app-specific)
+- [ ] Component/screen in `apps/web` or `apps/mobile` consuming the hook
 
 ## IMPORTANT
 
