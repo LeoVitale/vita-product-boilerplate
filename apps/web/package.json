@@ -12,12 +12,16 @@
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
+    "@tanstack/react-query": "^5.90.12",
+    "graphql": "^16.12.0",
+    "graphql-request": "^7.4.0",
     "next": "16.1.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
+    "@tanstack/react-query-devtools": "^5.91.1",
     "@types/node": "^25.0.3",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
