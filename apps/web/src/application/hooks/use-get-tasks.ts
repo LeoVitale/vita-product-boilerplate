@@ -1,17 +1,26 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, gql, QueryHookOptions } from '@apollo/client';
 import { Task } from '../../domain/entities/task';
-import { GetTasks } from '../use-cases/get-tasks-use-case';
-import { TaskRepositoryImpl } from '../../infrastructure/repositories/task-repository-impl';
 
-const getTasksUseCase = new GetTasks(new TaskRepositoryImpl());
+export const GET_TASKS = gql`
+  query GetTasks {
+    tasks {
+      id
+      title
+      completed
+    }
+  }
+`;
 
 export function useGetTasks(
-  options?: Partial<UseQueryOptions<Task[]>>
+  options?: QueryHookOptions<{ tasks: Task[] }>
 ) {
-  return useQuery({
-    queryKey: ['tasks'],
-    queryFn: () => getTasksUseCase.execute(),
-    ...options,
-  });
-}
+  const { data, loading, error, refetch } = useQuery<{ tasks: Task[] }>(GET_TASKS, options);
 
+  return {
+    data: data?.tasks,
+    isLoading: loading,
+    isError: !!error,
+    error,
+    refetch,
+  };
+}

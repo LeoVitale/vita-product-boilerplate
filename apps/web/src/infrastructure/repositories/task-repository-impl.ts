@@ -1,12 +1,12 @@
-import { gql } from 'graphql-request';
+import { gql } from '@apollo/client';
 import { TaskRepositoryInterface } from '../../domain/repositories/task-repository-interface';
 import { Task } from '../../domain/entities/task';
-import { graphqlClient } from '../graphql/graphql-client';
+import { apolloClient } from '../graphql/apollo-client';
 
 export class TaskRepositoryImpl implements TaskRepositoryInterface {
   async list(): Promise<Task[]> {
     const query = gql`
-      query {
+      query GetTasks {
         tasks {
           id
           title
@@ -15,8 +15,10 @@ export class TaskRepositoryImpl implements TaskRepositoryInterface {
       }
     `;
 
-    const data = await graphqlClient.request<{ tasks: Task[] }>(query);
+    const { data } = await apolloClient.query<{ tasks: Task[] }>({
+      query,
+    });
+    
     return data.tasks;
   }
 }
-
