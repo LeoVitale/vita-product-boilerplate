@@ -123,6 +123,34 @@ yarn exec turbo link
 pnpm exec turbo link
 ```
 
+## Architecture
+
+This project follows **Clean Architecture** principles with SOLID design patterns and React Query for state management.
+
+### Architecture Documentation
+
+- **[`.architecture-rules.md`](./.architecture-rules.md)** - Complete architecture guide with rules, examples, and conventions
+- **[`.cursor/rules/clean-arch-rules.mdc`](./.cursor/rules/clean-arch-rules.mdc)** - Cursor IDE Project Rules (automatically applied)
+
+### Quick Overview
+
+```
+apps/web/src/
+├── domain/              # Business entities and repository interfaces
+├── application/         # Use cases and Apollo Client hooks
+├── infrastructure/      # Implementations (Apollo Client, repositories)
+└── presentation/        # React components
+```
+
+**Key Principles:**
+
+- Domain layer has no dependencies
+- Application layer depends only on Domain
+- Infrastructure implements Domain interfaces
+- Presentation uses Application hooks
+
+For detailed rules and examples, see [`.architecture-rules.md`](./.architecture-rules.md).
+
 ## Useful Links
 
 Learn more about the power of Turborepo:

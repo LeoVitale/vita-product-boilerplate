@@ -1,0 +1,13 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Query {
+  tasks: [Task!]!
+}
+
+type Task {
+  completed: Boolean!
+  id: ID!
+  title: String!
+}

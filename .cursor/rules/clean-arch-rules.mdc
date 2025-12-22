@@ -1,0 +1,193 @@
+---
+alwaysApply: true
+---
+
+# Clean Architecture Rules - Vita Product Boilerplate
+
+Este workspace segue Clean Architecture com SOLID principles e Apollo Client.
+
+## Estrutura de Camadas
+
+```
+apps/web/src/
+├── domain/              # Entidades e interfaces de repositório
+├── application/         # Use cases e hooks Apollo Client
+├── infrastructure/      # Implementações (Apollo Client, repositórios)
+└── presentation/        # Componentes React
+```
+
+## Regras por Camada
+
+### Domain Layer (`src/domain`)
+
+- ✅ Definir interfaces TypeScript para entidades
+- ✅ Declarar interfaces de repositório (contratos abstratos)
+- ❌ PROIBIDO: Implementações, frameworks, Apollo Client, lógica de negócio
+
+### Application Layer (`src/application`)
+
+#### Use Cases (`use-cases/`)
+
+- ✅ Implementar interfaces de use case
+- ✅ Orquestrar chamadas a repositórios
+- ✅ Transformar dados entre camadas quando necessário
+- ❌ PROIBIDO: Componentes React, hooks Apollo diretamente
+
+#### Hooks (`hooks/`)
+
+- ✅ Usar `useQuery` e `useMutation` do `@apollo/client/react`
+- ✅ Definir queries GraphQL usando `gql`
+- ✅ Retornar formato padrão: `{ data, isLoading, isError, error, refetch }`
+- ✅ Normalizar dados do Apollo para entidades do domínio
+- ❌ PROIBIDO: Lógica de negócio complexa (deve ir para use cases)
+
+### Infrastructure Layer (`src/infrastructure`)
+
+- ✅ Implementar interfaces de repositório
+- ✅ Configurar Apollo Client
+- ✅ Usar Apollo Client para fazer queries/mutations
+- ❌ PROIBIDO: Componentes React, hooks Apollo diretamente, lógica de negócio, dependências de use cases
+
+### Presentation Layer (`src/presentation`)
+
+- ✅ Componentes React
+- ✅ Usar hooks da camada de aplicação
+- ❌ PROIBIDO: Chamar repositórios ou use cases diretamente, definir queries GraphQL
+
+## Fluxo de Dependências
+
+```
+Presentation → Application → Domain ← Infrastructure
+```
+
+- Domain não importa de nenhuma outra camada
+- Application importa apenas de Domain
+- Infrastructure importa apenas de Domain
+- Presentation importa apenas de Application e Domain (para tipos)
+
+## Convenções
+
+### Nomenclatura
+
+- Entidades: PascalCase singular (`Task`, `User`)
+- Interfaces de Repositório: `{Entity}RepositoryInterface`
+- Implementações: `{Entity}RepositoryImpl`
+- Use Cases: Verbos infinitivo (`GetTasks`, `CreateTask`)
+- Interfaces de Use Case: Prefixo `I` (`IGetTasks`)
+- Hooks: `use{Action}{Entity}` (`useGetTasks`)
+- Queries GraphQL: `GET_{ENTITY}` ou `{ACTION}_{ENTITY}` (`GET_TASKS`, `CREATE_TASK`)
+
+### Estrutura de Queries GraphQL
+
+Centralizar queries em arquivos de hooks ou em `src/application/graphql/queries.ts`:
+
+```typescript
+import { gql } from '@apollo/client';
+
+export const GET_TASKS = gql`
+  query GetTasks {
+    tasks {
+      id
+      title
+      completed
+    }
+  }
+`;
+```
+
+## Exemplo de Hook Correto
+
+```typescript
+// src/application/hooks/use-get-tasks.ts
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
+import { Task } from '../../domain/entities/task';
+
+export const GET_TASKS = gql`
+  query GetTasks {
+    tasks {
+      id
+      title
+      completed
+    }
+  }
+`;
+
+export function useGetTasks(options?: Parameters<typeof useQuery>[1]) {
+  const { data, loading, error, refetch } = useQuery<{ tasks: Task[] }>(
+    GET_TASKS,
+    options,
+  );
+
+  return {
+    data: data?.tasks,
+    isLoading: loading,
+    isError: !!error,
+    error,
+    refetch,
+  };
+}
+```
+
+## Exemplo com Use Case (quando há lógica de negócio)
+
+```typescript
+// src/application/hooks/use-get-tasks.ts
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
+import { Task } from '../../domain/entities/task';
+import { GetTasks } from '../use-cases/get-tasks-use-case';
+import { TaskRepositoryImpl } from '../../infrastructure/repositories/task-repository-impl';
+
+export const GET_TASKS = gql`
+  query GetTasks {
+    tasks {
+      id
+      title
+      completed
+    }
+  }
+`;
+
+const getTasksUseCase = new GetTasks(new TaskRepositoryImpl());
+
+export function useGetTasks(options?: Parameters<typeof useQuery>[1]) {
+  const { data, loading, error, refetch } = useQuery<{ tasks: Task[] }>(
+    GET_TASKS,
+    {
+      ...options,
+      onCompleted: (data) => {
+        // Se precisar processar dados através do use case
+        getTasksUseCase.execute();
+        options?.onCompleted?.(data);
+      },
+    },
+  );
+
+  return {
+    data: data?.tasks,
+    isLoading: loading,
+    isError: !!error,
+    error,
+    refetch,
+  };
+}
+```
+
+## Checklist ao Criar Nova Feature
+
+- [ ] Entidade em `domain/entities/`
+- [ ] Interface de repositório em `domain/repositories/` (se necessário)
+- [ ] Use case em `application/use-cases/` (se houver lógica de negócio)
+- [ ] Hook em `application/hooks/` usando Apollo Client
+- [ ] Query GraphQL definida no hook ou em arquivo separado
+- [ ] Implementação de repositório em `infrastructure/repositories/` (se usar use case)
+- [ ] Componente em `presentation/components/` usando hook
+
+## IMPORTANTE
+
+- SEMPRE use Apollo Client nos hooks (`@apollo/client/react`)
+- SEMPRE normalize dados do Apollo para entidades do domínio
+- SEMPRE retorne formato padrão: `{ data, isLoading, isError, error, refetch }`
+- Use use cases quando houver lógica de negócio complexa
+- SEMPRE siga o fluxo: Component → Hook → (Use Case → Repository) → Apollo Client

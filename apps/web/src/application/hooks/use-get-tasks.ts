@@ -1,4 +1,5 @@
-import { useQuery, gql, QueryHookOptions } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { Task } from '../../domain/entities/task';
 
 export const GET_TASKS = gql`
@@ -12,7 +13,7 @@ export const GET_TASKS = gql`
 `;
 
 export function useGetTasks(
-  options?: QueryHookOptions<{ tasks: Task[] }>
+  options?: useQuery.Options<{ tasks: Task[] }>
 ) {
   const { data, loading, error, refetch } = useQuery<{ tasks: Task[] }>(GET_TASKS, options);
 

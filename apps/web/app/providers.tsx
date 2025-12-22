@@ -1,6 +1,6 @@
 'use client';
 
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import { apolloClient } from '../src/infrastructure/graphql/apollo-client';
 
 export function Providers({ children }: { children: React.ReactNode }) {
