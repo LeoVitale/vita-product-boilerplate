@@ -1,8 +1,15 @@
 import { useQuery } from '@apollo/client/react';
-import { GetTasksDocument, type GetTasksQuery, type GetTasksQueryVariables } from '@repo/graphql';
+import {
+  GetTasksDocument,
+  type GetTasksQuery,
+  type GetTasksQueryVariables,
+} from '@repo/graphql';
 
 export function useGetTasks(
-  options?: Omit<Parameters<typeof useQuery<GetTasksQuery, GetTasksQueryVariables>>[1], 'query'>
+  options?: Omit<
+    Parameters<typeof useQuery<GetTasksQuery, GetTasksQueryVariables>>[1],
+    'query'
+  >,
 ) {
   const { data, loading, error, refetch } = useQuery(GetTasksDocument, options);
 

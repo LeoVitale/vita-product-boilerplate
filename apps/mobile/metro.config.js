@@ -18,8 +18,9 @@ config.resolver.nodeModulesPaths = [
 
 // Use a custom cache to avoid issues with monorepo
 config.cacheStores = [
-  new FileStore({ root: path.join(projectRoot, 'node_modules', '.cache', 'metro') }),
+  new FileStore({
+    root: path.join(projectRoot, 'node_modules', '.cache', 'metro'),
+  }),
 ];
 
 module.exports = config;
-

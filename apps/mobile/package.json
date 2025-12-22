@@ -1,12 +1,14 @@
 {
   "name": "@repo/mobile",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.tsx",
   "scripts": {
     "dev": "expo start --dev-client",
     "web": "expo start --web",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "lint": "eslint --max-warnings 0"
   },
   "dependencies": {
     "@apollo/client": "^4.0.11",
@@ -33,7 +35,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@repo/config": "workspace:*",
     "@types/react": "~19.1.10",
+    "eslint": "^9.39.2",
     "typescript": "~5.9.2"
   },
   "private": true

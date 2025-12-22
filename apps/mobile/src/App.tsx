@@ -21,7 +21,7 @@ const prefix = createURL('/');
 export function App() {
   const colorScheme = useColorScheme();
 
-  const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme
+  const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
 
   return (
     <ApolloProvider>
