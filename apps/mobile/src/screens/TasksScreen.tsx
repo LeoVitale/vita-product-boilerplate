@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
-import { useGetTasks } from '../hooks/use-get-tasks';
+import { useGetTasks } from '@repo/application';
 
 export function TasksScreen() {
   const { data: tasks, isLoading, isError, error, refetch } = useGetTasks();
