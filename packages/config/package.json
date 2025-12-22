@@ -3,12 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./eslint/base": "./eslint/base.js",
-    "./eslint/next": "./eslint/next.js",
-    "./eslint/react-internal": "./eslint/react-internal.js",
-    "./typescript/base": "./typescript/base.json",
-    "./typescript/nextjs": "./typescript/nextjs.json",
-    "./typescript/react-library": "./typescript/react-library.json",
+    ".": "./package.json",
+    "./typescript/*": "./typescript/*",
+    "./eslint/*": "./eslint/*",
     "./prettier": "./prettier/base.json"
   },
   "devDependencies": {
