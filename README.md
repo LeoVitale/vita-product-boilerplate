@@ -96,8 +96,10 @@ pnpm generate
 
 ## 📚 Documentation
 
-- **[Advanced Clean Architecture Rules](./.cursor/rules/clean-arch-rules.mdc)** - In-depth guide on how to build within this architecture.
-- **[Turborepo Documentation](https://turborepo.com/docs)** - Learn more about the monorepo orchestration.
+- **Start here (EN)**: [`docs/README.en.md`](./docs/README.en.md)
+- **Comece aqui (PT)**: [`docs/README.pt.md`](./docs/README.pt.md)
+- **Cursor rules (architecture + TDD)**: [`./.cursor/rules/`](./.cursor/rules/)
+- Turborepo: `https://turborepo.com/docs`
 
 ---
 
