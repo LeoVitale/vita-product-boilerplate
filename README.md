@@ -14,10 +14,10 @@ This boilerplate implements **Advanced Clean Architecture**. The "intelligence" 
 
 ```mermaid
 graph LR
-    Web[Apps / Web] --> AppPkg[@repo/application]
-    Mobile[Apps / Mobile] --> AppPkg
-    AppPkg --> DomainPkg[@repo/domain]
-    InfraPkg[@repo/infrastructure] --> DomainPkg
+    Web["Apps / Web"] --> AppPkg["@repo/application"]
+    Mobile["Apps / Mobile"] --> AppPkg
+    AppPkg --> DomainPkg["@repo/domain"]
+    InfraPkg["@repo/infrastructure"] --> DomainPkg
     AppPkg --> InfraPkg
 ```
 
