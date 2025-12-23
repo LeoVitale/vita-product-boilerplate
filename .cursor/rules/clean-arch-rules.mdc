@@ -4,152 +4,100 @@ alwaysApply: true
 
 # Clean Architecture Rules - Vita Product Boilerplate
 
-This workspace follows Clean Architecture with SOLID principles and Apollo Client.
+This workspace follows Advanced Clean Architecture with SOLID principles, Apollo Client, and Functional Patterns.
 
 ## Layer Structure
 
 ```
 packages/
-├── domain/              # Domain entities + repository interfaces (contracts)
-├── application/         # Use cases + Apollo Client hooks (orchestration)
+├── domain/              # Domain entities (Zod) + repository interfaces (contracts) + Result Pattern
+├── application/         # Pure Use Cases (orchestration) + Hooks
+├── infrastructure/      # Technical implementations (Apollo Client repositories, adapters)
 ├── graphql/             # Generated GraphQL documents/types (shared)
-└── ui/                  # Shared UI primitives (optional)
+└── ui/                  # Shared UI primitives
 
 apps/
-├── web/                 # Presentation (Next.js) + web-only infrastructure wiring
-└── mobile/              # Presentation (Expo) + mobile-only infrastructure wiring
+├── web/                 # Presentation (Next.js) + Composition Root
+└── mobile/              # Presentation (Expo) + Composition Root
 ```
 
 ## Rules by Layer
 
 ### Domain Layer (`@repo/domain`)
+**The heart of the application. Pure TypeScript.**
 
-- ✅ Define TypeScript interfaces for entities
-- ✅ Declare repository interfaces (abstract contracts)
-- ❌ FORBIDDEN: Implementations, frameworks, Apollo Client, business logic
+- ✅ Define entities using **Zod** for schema validation and type safety.
+- ✅ Declare **repository interfaces** (abstract contracts).
+- ✅ Use the **Result Pattern** (`{ ok: true, value: T } | { ok: false, error: E }`) for domain errors.
+- ❌ FORBIDDEN: Frameworks, Apollo Client, Infrastructure details, external libraries (except Zod).
 
 ### Application Layer (`@repo/application`)
+**Orchestrates business rules. Framework-agnostic.**
 
 #### Use Cases (`use-cases/`)
-
-- ✅ Implement use case interfaces
-- ✅ Orchestrate repository calls
-- ✅ Transform data between layers when necessary
-- ❌ FORBIDDEN: React components, Apollo hooks directly
+- ✅ Implement business logic in pure classes.
+- ✅ Depend only on repository interfaces (Dependency Inversion).
+- ✅ Return `Result` types.
+- ❌ FORBIDDEN: React components, Apollo hooks, UI logic.
 
 #### Hooks (`hooks/`)
+- ✅ Orchestrate Use Cases and Repositories.
+- ✅ Manage React state (loading, error, data).
+- ✅ Return standard format: `{ data, isLoading, isError, error, refetch }`.
 
-- ✅ Use `useQuery` and `useMutation` from `@apollo/client/react`
-- ✅ Use GraphQL documents from `@repo/graphql` (generated) or define queries using `gql` when needed
-- ✅ Return standard format: `{ data, isLoading, isError, error, refetch }`
-- ✅ Normalize Apollo data to domain entities
-- ❌ FORBIDDEN: Complex business logic (should go to use cases)
+### Infrastructure Layer (`@repo/infrastructure`)
+**External world implementations.**
 
-### Infrastructure Layer (per-app wiring)
-
-- ✅ Configure Apollo Client (web/mobile specific endpoints, auth links, cache policies)
-- ✅ Provide app composition/wiring (Providers, environment variables)
-- ❌ FORBIDDEN: Business logic (belongs in `@repo/application` use cases)
-- ❌ FORBIDDEN: Domain entity definitions (belongs in `@repo/domain`)
+- ✅ Implement repository interfaces using **Apollo Client** or other tools.
+- ✅ Map external data formats to Domain Entities using **Mappers**.
+- ✅ Handle technical errors and convert them to Domain Errors.
 
 ### Presentation Layer (apps)
+**The "Imperative Shell".**
 
-- ✅ React components
-- ✅ Use hooks from `@repo/application`
-- ✅ Import domain types from `@repo/domain` (for typing only)
-- ❌ FORBIDDEN: Define GraphQL queries/mutations
-- ❌ FORBIDDEN: Call repositories/use cases directly (components should call hooks)
+- ✅ React components (Next.js / Expo).
+- ✅ **Composition Root**: Instantiate repositories and use cases here (via `useMemo` or Providers).
+- ✅ Use hooks from `@repo/application`.
+- ❌ FORBIDDEN: Define GraphQL queries, business logic, or direct repository access.
 
 ## Dependency Flow
 
-```
-apps (presentation) → @repo/application → @repo/domain
-apps (infrastructure wiring) ──configures──> Apollo Client
+```mermaid
+graph LR
+    Apps[Apps / Presentation] --> AppPkg[@repo/application]
+    Apps --> InfraPkg[@repo/infrastructure]
+    AppPkg --> DomainPkg[@repo/domain]
+    InfraPkg --> DomainPkg
 ```
 
-- `@repo/domain` does not import from any other layer
-- `@repo/application` imports from `@repo/domain` (and `@repo/graphql` for documents/types)
-- Apps import from `@repo/application` and `@repo/domain` (types) only
+- `@repo/domain` is the most stable and has NO dependencies.
+- `@repo/application` depends only on `@repo/domain`.
+- `@repo/infrastructure` depends on `@repo/domain` (to implement interfaces).
+- `Apps` connect everything (Composition Root).
 
 ## Conventions
 
 ### Naming
+- Entities: PascalCase (`Task`).
+- Schemas: `{Entity}Schema` (`TaskSchema`).
+- Repository Interfaces: `{Entity}RepositoryInterface`.
+- Use Cases: `{Action}{Entity}UseCase` (`GetTasksUseCase`).
+- Implementations: `{Tech}{Entity}Repository` (`ApolloTaskRepository`).
 
-- Entities: PascalCase singular (`Task`, `User`)
-- Repository Interfaces: `{Entity}RepositoryInterface`
-- Implementations: `{Entity}RepositoryImpl`
-- Use Cases: Infinitive verbs (`GetTasks`, `CreateTask`)
-- Use Case Interfaces: `I` prefix (`IGetTasks`)
-- Hooks: `use{Action}{Entity}` (`useGetTasks`)
-- GraphQL Queries: `GET_{ENTITY}` or `{ACTION}_{ENTITY}` (`GET_TASKS`, `CREATE_TASK`)
-
-### GraphQL Query Structure
-
-Centralize queries in `@repo/graphql` (generated from `packages/graphql/src/**/*.graphql`).
-If a query is app-specific, it should still live in `@repo/application` (hook file), not in an app component.
+### Error Handling (Result Pattern)
+Always return a `Result` from Use Cases and Repositories instead of throwing.
 
 ```typescript
-import { gql } from '@apollo/client';
+// use-case
+async execute(): Promise<Result<Task[]>> { ... }
 
-export const GET_TASKS = gql`
-  query GetTasks {
-    tasks {
-      id
-      title
-      completed
-    }
-  }
-`;
+// hook consumption
+const result = await useCase.execute();
+if (result.ok) { /* success */ } else { /* handle error */ }
 ```
-
-## Correct Hook Example
-
-```typescript
-// packages/application/src/hooks/use-get-tasks.ts
-import { useQuery } from '@apollo/client/react';
-import { GetTasksDocument } from '@repo/graphql';
-import type { Task } from '@repo/domain';
-
-export function useGetTasks(options?: Parameters<typeof useQuery>[1]) {
-  const { data, loading, error, refetch } = useQuery(GetTasksDocument, options);
-
-  return {
-    data: data?.tasks?.map((t) => ({ id: t.id, title: t.title, completed: t.completed })) as
-      | Task[]
-      | undefined,
-    isLoading: loading,
-    isError: !!error,
-    error,
-    refetch,
-  };
-}
-```
-
-## Example with Use Case (when there is business logic)
-
-```typescript
-// packages/application/src/hooks/use-get-tasks.ts
-// - hook talks to Apollo
-// - use case holds business rules (filtering, validation, orchestration, etc.)
-//
-// Pattern:
-// const useCase = new SomeUseCase(/* dependencies */);
-// const result = useCase.execute(/* inputs */);
-```
-
-## Checklist for Creating a New Feature
-
-- [ ] Entity in `packages/domain/src/entities/`
-- [ ] Repository interface in `packages/domain/src/repositories/` (if needed)
-- [ ] Use case in `packages/application/src/use-cases/` (if there is business logic)
-- [ ] Hook in `packages/application/src/hooks/` using Apollo Client
-- [ ] GraphQL document in `packages/graphql/src/**/*.graphql` (shared) or inside the hook (if app-specific)
-- [ ] Component/screen in `apps/web` or `apps/mobile` consuming the hook
 
 ## IMPORTANT
-
-- ALWAYS use Apollo Client in hooks (`@apollo/client/react`)
-- ALWAYS normalize Apollo data to domain entities
-- ALWAYS return standard format: `{ data, isLoading, isError, error, refetch }`
-- Use use cases when there is complex business logic
-- ALWAYS follow the flow: Component → Hook → (Use Case → Repository) → Apollo Client
+- **ALWAYS** use Zod for domain entity definitions.
+- **ALWAYS** return `Result` types for error handling.
+- **ALWAYS** inject repositories into use cases (Dependency Inversion).
+- **NEVER** import from `apps/` or `@repo/infrastructure` inside `@repo/application`.
