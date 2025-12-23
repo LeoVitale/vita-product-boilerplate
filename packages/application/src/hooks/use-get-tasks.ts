@@ -11,7 +11,7 @@ export function useGetTasks(useCase: IGetTasksUseCase) {
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
     setIsError(false);
-    
+
     const result = await useCase.execute();
 
     if (result.ok) {

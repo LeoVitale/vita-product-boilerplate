@@ -24,7 +24,11 @@ export default function Home() {
           <ul>
             {tasks.map((task) => (
               <li key={task.id}>
-                <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
+                <span
+                  style={{
+                    textDecoration: task.completed ? 'line-through' : 'none',
+                  }}
+                >
                   {task.title}
                 </span>
               </li>

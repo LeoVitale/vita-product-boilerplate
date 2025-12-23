@@ -1,4 +1,3 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import {
   GetTasksDocument,
   GetTasksQuery,
@@ -13,8 +12,12 @@ import {
   TaskSchema,
 } from '@repo/domain';
 
+export interface GraphQLClient {
+  query<T = any, V = any>(options: any): Promise<{ data?: T }>;
+}
+
 export class ApolloTaskRepository implements TaskRepositoryInterface {
-  constructor(private client: ApolloClient<NormalizedCacheObject>) {}
+  constructor(private client: GraphQLClient) {}
 
   async findAll(): Promise<Result<Task[]>> {
     try {
@@ -30,7 +33,7 @@ export class ApolloTaskRepository implements TaskRepositoryInterface {
       }
 
       // Mapeamento e validação com Zod
-      const tasks: Task[] = data.tasks.map((t) =>
+      const tasks: Task[] = data.tasks.map((t: any) =>
         TaskSchema.parse({
           id: t.id,
           title: t.title,
@@ -46,4 +49,3 @@ export class ApolloTaskRepository implements TaskRepositoryInterface {
     }
   }
 }
-
