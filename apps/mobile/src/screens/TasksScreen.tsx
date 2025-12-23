@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,10 +8,19 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
-import { useGetTasks } from '@repo/application';
+import { useGetTasks, GetTasksUseCase } from '@repo/application';
+import { ApolloTaskRepository } from '@repo/infrastructure';
+import { useApolloClient } from '@apollo/client';
 
 export function TasksScreen() {
-  const { data: tasks, isLoading, isError, error, refetch } = useGetTasks();
+  const client = useApolloClient();
+  
+  const useCase = useMemo(() => {
+    const repository = new ApolloTaskRepository(client as any);
+    return new GetTasksUseCase(repository);
+  }, [client]);
+
+  const { data: tasks, isLoading, isError, error, refetch } = useGetTasks(useCase);
 
   if (isLoading) {
     return (
