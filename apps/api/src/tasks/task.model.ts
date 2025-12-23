@@ -11,4 +11,3 @@ export class Task {
   @Field()
   completed: boolean;
 }
-

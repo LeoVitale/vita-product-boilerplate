@@ -7,8 +7,7 @@ export class TasksResolver {
   constructor(private readonly tasksService: TasksService) {}
 
   @Query(() => [Task])
-  async tasks(): Promise<Task[]> {
+  tasks(): Task[] {
     return this.tasksService.findAll();
   }
 }
-

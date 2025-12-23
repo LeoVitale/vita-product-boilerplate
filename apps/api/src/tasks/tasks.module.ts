@@ -7,4 +7,3 @@ import { TasksResolver } from './tasks.resolver';
   exports: [TasksService],
 })
 export class TasksModule {}
-
