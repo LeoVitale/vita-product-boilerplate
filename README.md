@@ -1,163 +1,106 @@
-# Turborepo starter
+# Vita Product Boilerplate
 
-This Turborepo starter is maintained by the Turborepo core team.
+A high-performance monorepo boilerplate for building professional-grade web and mobile applications using **Advanced Clean Architecture**, **SOLID principles**, and **Functional Patterns**.
 
-## Using this example
+## 🚀 Purpose
 
-Run the following command:
+The goal of this project is to provide a rock-solid, scalable foundation for cross-platform products. It enforces a strict separation of concerns, ensuring that business logic is written once and shared across web (Next.js) and mobile (Expo) apps, while maintaining high testability and type-safety.
 
-```sh
-npx create-turbo@latest
+## 🏗️ Architecture
+
+This boilerplate implements **Advanced Clean Architecture**. The "intelligence" of the application is centralized in shared packages, leaving the apps as thin presentation layers.
+
+### Layer Structure
+
+```mermaid
+graph LR
+    Web[Apps / Web] --> AppPkg[@repo/application]
+    Mobile[Apps / Mobile] --> AppPkg
+    AppPkg --> DomainPkg[@repo/domain]
+    InfraPkg[@repo/infrastructure] --> DomainPkg
+    AppPkg --> InfraPkg
 ```
 
-## What's inside?
+| Package                    | Responsibility                                                  | Technologies        |
+| :------------------------- | :-------------------------------------------------------------- | :------------------ |
+| **`@repo/domain`**         | Core business logic, Entities (Zod), and Repository Interfaces. | TypeScript, Zod     |
+| **`@repo/application`**    | Pure Use Cases and orchestration hooks.                         | TypeScript, React   |
+| **`@repo/infrastructure`** | Technical implementations (API, Storage, Adapters).             | Apollo Client, Zod  |
+| **`@repo/graphql`**        | Generated GraphQL types and documents.                          | GraphQL Codegen     |
+| **`@repo/ui`**             | Shared design system and UI primitives.                         | React, Tailwind/CSS |
 
-This Turborepo includes the following packages/apps:
+### Key Professional Patterns
 
-### Apps and Packages
+- **Zod as Source of Truth**: Entities are defined via Zod schemas for runtime validation and static type inference.
+- **Functional Result Pattern**: Error handling is treated as data, avoiding unexpected exceptions.
+- **Dependency Inversion**: High-level application logic depends on abstract repository interfaces, not concrete implementations.
+- **Single Source of Truth**: Business rules and data fetching logic are shared between Web and Mobile.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## 📦 Project Structure
 
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```text
+.
+├── apps/
+│   ├── api/          # NestJS GraphQL API
+│   ├── web/          # Next.js Presentation Layer
+│   └── mobile/       # Expo/React Native Presentation Layer
+├── packages/
+│   ├── domain/       # Shared Domain Layer (Entities + Interfaces)
+│   ├── application/  # Shared Application Layer (Use Cases + Hooks)
+│   ├── infrastructure/# Shared Infrastructure Layer (Apollo Repositories)
+│   ├── graphql/      # Shared GraphQL types/codegen
+│   ├── ui/           # Shared UI Components
+│   └── config/       # Shared ESLint, Prettier, and TS configs
+└── .cursor/rules/    # Cursor IDE architecture enforcement rules
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+## 🛠️ Getting Started
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+### Prerequisites
 
-### Develop
+- [Node.js](https://nodejs.org/) (>= 20)
+- [pnpm](https://pnpm.io/) (>= 9)
 
-To develop all apps and packages, run the following command:
+### Installation
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+pnpm install
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Development
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+To start all applications (API, Web, Mobile) in development mode:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+pnpm dev
 ```
 
-### Remote Caching
+### Type Checking & Linting
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+pnpm check-types
+pnpm lint
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### Code Generation (GraphQL)
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+pnpm generate
 ```
 
-## Architecture
+---
 
-This project follows **Clean Architecture** principles with SOLID design patterns and React Query for state management.
+## 📚 Documentation
 
-### Architecture Documentation
+- **[Advanced Clean Architecture Rules](./.cursor/rules/clean-arch-rules.mdc)** - In-depth guide on how to build within this architecture.
+- **[Turborepo Documentation](https://turborepo.com/docs)** - Learn more about the monorepo orchestration.
 
-- **[`.architecture-rules.md`](./.architecture-rules.md)** - Complete architecture guide with rules, examples, and conventions
-- **[`.cursor/rules/clean-arch-rules.mdc`](./.cursor/rules/clean-arch-rules.mdc)** - Cursor IDE Project Rules (automatically applied)
+---
 
-### Quick Overview
+## 🛡️ License
 
-```
-apps/web/src/
-├── domain/              # Business entities and repository interfaces
-├── application/         # Use cases and Apollo Client hooks
-├── infrastructure/      # Implementations (Apollo Client, repositories)
-└── presentation/        # React components
-```
-
-**Key Principles:**
-
-- Domain layer has no dependencies
-- Application layer depends only on Domain
-- Infrastructure implements Domain interfaces
-- Presentation uses Application hooks
-
-For detailed rules and examples, see [`.architecture-rules.md`](./.architecture-rules.md).
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+This project is licensed under the MIT License.
