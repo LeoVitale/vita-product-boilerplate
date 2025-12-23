@@ -1,0 +1,34 @@
+---
+alwaysApply: true
+---
+
+# Documentation Rules - Mandatory
+
+This project is designed to be **educational**. Documentation is part of the product.
+
+## Scope
+
+Any new feature or architectural change must update docs in `docs/` when applicable.
+
+## Requirements
+
+When adding a feature:
+
+- Add/Update docs in **both** languages:
+  - English: `docs/**/*.en.md`
+  - Portuguese: `docs/**/*.pt.md`
+- Update:
+  - `docs/workflows/adding-a-feature.*` if the workflow changes
+  - `docs/architecture/*` if dependency flow/layering changes
+  - `docs/patterns/*` if a new pattern is introduced
+  - `docs/reference/glossary.*` if new terminology is added
+
+## Quality bar
+
+Docs should include:
+
+- Purpose
+- When to use
+- Minimal example
+- Common mistakes
+- Links (official docs + high-quality references)

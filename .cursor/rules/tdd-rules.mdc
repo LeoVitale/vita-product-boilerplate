@@ -1,0 +1,67 @@
+---
+alwaysApply: true
+---
+
+# TDD Rules (Vitest) - Mandatory
+
+This workspace enforces **Test-Driven Development (TDD)** for **all new feature code**.
+
+## Scope (mandatory)
+
+TDD is required for changes that add or modify business behavior in:
+
+- `packages/domain/**`
+- `packages/application/**`
+- `packages/infrastructure/**`
+
+Docs-only changes are excluded.
+
+## Definition of Done (TDD)
+
+For every new/changed behavior you must provide:
+
+- A short **test plan** written as **Given / When / Then**
+- A **failing test first** (Red)
+- Minimal implementation to pass (Green)
+- Refactor with all tests green (Refactor)
+
+## Test stack
+
+- Use **Vitest**.
+- Tests must be deterministic (no real network/time/randomness).
+
+## What to test (by layer)
+
+### Domain
+
+- Zod invariants (schema validation)
+- Pure utilities and domain rules
+
+### Application
+
+- Use case behavior with **fake repositories**
+- Success and failure paths using `Result`
+
+### Infrastructure
+
+- Boundary mapping (external data -> domain entity)
+- Repository behavior using a stubbed client (no real network)
+
+## Conventions
+
+- Name tests by behavior: `given_when_then`.
+- Prefer unit tests for domain + use cases.
+- Keep tests small and focused; avoid snapshot tests for business logic.
+
+## If a test harness is not available yet
+
+If Vitest is not configured yet, you must still:
+
+- Write the test files in the expected location
+- Add a short note in the PR/commit describing what is missing to run them
+
+## References
+
+- TDD (Martin Fowler): `https://martinfowler.com/bliki/TestDrivenDevelopment.html`
+- Agile Alliance glossary: `https://www.agilealliance.org/glossary/tdd/`
+- Vitest: `https://vitest.dev/`

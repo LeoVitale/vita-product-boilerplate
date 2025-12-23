@@ -101,3 +101,8 @@ if (result.ok) { /* success */ } else { /* handle error */ }
 - **ALWAYS** return `Result` types for error handling.
 - **ALWAYS** inject repositories into use cases (Dependency Inversion).
 - **NEVER** import from `apps/` or `@repo/infrastructure` inside `@repo/application`.
+
+## Additional mandatory rules
+
+- **TDD is mandatory** for all new feature code. See: `.cursor/rules/tdd-rules.mdc`
+- **Documentation is mandatory** (bilingual) for new features. See: `.cursor/rules/docs-rules.mdc`
