@@ -16,7 +16,7 @@ export function TasksScreen() {
   const client = useApolloClient();
 
   const useCase = useMemo(() => {
-    const repository = new ApolloTaskRepository(client as any);
+    const repository = new ApolloTaskRepository(client);
     return new GetTasksUseCase(repository);
   }, [client]);
 

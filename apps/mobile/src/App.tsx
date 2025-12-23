@@ -7,11 +7,13 @@ import * as React from 'react';
 import { useColorScheme } from 'react-native';
 import { Navigation } from './navigation';
 import { ApolloProvider } from './providers/ApolloProvider';
+import bell from './assets/bell.png';
+import newspaper from './assets/newspaper.png';
 
 Asset.loadAsync([
   ...NavigationAssets,
-  require('./assets/newspaper.png'),
-  require('./assets/bell.png'),
+  newspaper,
+  bell,
 ]);
 
 SplashScreen.preventAutoHideAsync();
