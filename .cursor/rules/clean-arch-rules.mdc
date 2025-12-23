@@ -24,6 +24,7 @@ apps/
 ## Rules by Layer
 
 ### Domain Layer (`@repo/domain`)
+
 **The heart of the application. Pure TypeScript.**
 
 - ✅ Define entities using **Zod** for schema validation and type safety.
@@ -32,20 +33,24 @@ apps/
 - ❌ FORBIDDEN: Frameworks, Apollo Client, Infrastructure details, external libraries (except Zod).
 
 ### Application Layer (`@repo/application`)
+
 **Orchestrates business rules. Framework-agnostic.**
 
 #### Use Cases (`use-cases/`)
+
 - ✅ Implement business logic in pure classes.
 - ✅ Depend only on repository interfaces (Dependency Inversion).
 - ✅ Return `Result` types.
 - ❌ FORBIDDEN: React components, Apollo hooks, UI logic.
 
 #### Hooks (`hooks/`)
+
 - ✅ Orchestrate Use Cases and Repositories.
 - ✅ Manage React state (loading, error, data).
 - ✅ Return standard format: `{ data, isLoading, isError, error, refetch }`.
 
 ### Infrastructure Layer (`@repo/infrastructure`)
+
 **External world implementations.**
 
 - ✅ Implement repository interfaces using **Apollo Client** or other tools.
@@ -53,6 +58,7 @@ apps/
 - ✅ Handle technical errors and convert them to Domain Errors.
 
 ### Presentation Layer (apps)
+
 **The "Imperative Shell".**
 
 - ✅ React components (Next.js / Expo).
@@ -78,6 +84,7 @@ graph LR
 ## Conventions
 
 ### Naming
+
 - Entities: PascalCase (`Task`).
 - Schemas: `{Entity}Schema` (`TaskSchema`).
 - Repository Interfaces: `{Entity}RepositoryInterface`.
@@ -85,6 +92,7 @@ graph LR
 - Implementations: `{Tech}{Entity}Repository` (`ApolloTaskRepository`).
 
 ### Error Handling (Result Pattern)
+
 Always return a `Result` from Use Cases and Repositories instead of throwing.
 
 ```typescript
@@ -97,6 +105,7 @@ if (result.ok) { /* success */ } else { /* handle error */ }
 ```
 
 ## IMPORTANT
+
 - **ALWAYS** use Zod for domain entity definitions.
 - **ALWAYS** return `Result` types for error handling.
 - **ALWAYS** inject repositories into use cases (Dependency Inversion).
