@@ -15,15 +15,14 @@
     "check-types": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@apollo/client": "^4.0.0",
     "react": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@repo/domain": "workspace:*",
-    "@repo/graphql": "workspace:*"
+    "@repo/domain": "workspace:*"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
+    "react": "^19.2.3",
     "typescript": "^5.9.3"
   }
 }

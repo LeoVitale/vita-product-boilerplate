@@ -1,31 +1,37 @@
-import { useQuery } from '@apollo/client/react';
-import {
-  GetTasksDocument,
-  type GetTasksQuery,
-  type GetTasksQueryVariables,
-} from '@repo/graphql';
-import type { Task } from '@repo/domain';
+import { useState, useEffect, useCallback } from 'react';
+import { Task } from '@repo/domain';
+import { IGetTasksUseCase } from '../use-cases/get-tasks.use-case';
 
-export function useGetTasks(
-  options?: Omit<
-    Parameters<typeof useQuery<GetTasksQuery, GetTasksQueryVariables>>[1],
-    'query'
-  >,
-) {
-  const { data, loading, error, refetch } = useQuery(GetTasksDocument, options);
+export function useGetTasks(useCase: IGetTasksUseCase) {
+  const [data, setData] = useState<Task[] | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState<Error | undefined>(undefined);
 
-  const tasks: Task[] | undefined = data?.tasks?.map((task) => ({
-    id: task.id,
-    title: task.title,
-    completed: task.completed,
-  }));
+  const fetchTasks = useCallback(async () => {
+    setIsLoading(true);
+    setIsError(false);
+    
+    const result = await useCase.execute();
+
+    if (result.ok) {
+      setData(result.value);
+    } else {
+      setIsError(true);
+      setError(result.error);
+    }
+    setIsLoading(false);
+  }, [useCase]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
   return {
-    data: tasks,
-    isLoading: loading,
-    isError: !!error,
+    data,
+    isLoading,
+    isError,
     error,
-    refetch,
+    refetch: fetchTasks,
   };
 }
-
