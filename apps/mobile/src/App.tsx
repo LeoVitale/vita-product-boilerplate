@@ -10,11 +10,7 @@ import { ApolloProvider } from './providers/ApolloProvider';
 import bell from './assets/bell.png';
 import newspaper from './assets/newspaper.png';
 
-Asset.loadAsync([
-  ...NavigationAssets,
-  newspaper,
-  bell,
-]);
+Asset.loadAsync([...NavigationAssets, newspaper, bell]);
 
 SplashScreen.preventAutoHideAsync();
 
