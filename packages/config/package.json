@@ -6,7 +6,9 @@
   "exports": {
     ".": "./package.json",
     "./typescript/*": "./typescript/*",
-    "./eslint/*": "./eslint/*",
+    "./eslint/*": "./eslint/*.js",
+    "./eslint/*.js": "./eslint/*.js",
+    "./eslint/*.mjs": "./eslint/*.mjs",
     "./prettier": "./prettier/base.json"
   },
   "devDependencies": {
