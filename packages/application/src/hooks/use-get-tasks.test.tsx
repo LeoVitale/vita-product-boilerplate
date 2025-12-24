@@ -1,37 +1,74 @@
 import { describe, it, expect } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
+import { useGetTasks } from './use-get-tasks';
+import { ReactNode } from 'react';
 
 /**
  * Note: Full integration tests with MockedProvider are challenging in Vitest + jsdom
  * due to context propagation issues with React 19 and Apollo Client hooks.
  *
- * For comprehensive testing:
- * - Unit tests here verify the hook exports and interface
- * - Integration tests in apps/web test the full Apollo flow
- * - E2E tests (future) verify end-to-end behavior
+ * These tests verify the hook interface and basic behavior.
+ * For comprehensive GraphQL testing, see integration tests in apps/web.
  */
 describe('useGetTasks', () => {
-  it('given_module_when_imported_then_exports_hook', async () => {
-    // arrange & act
-    const { useGetTasks } = await import('./use-get-tasks.js');
+  it('given_apollo_provider_when_hook_called_then_returns_correct_interface', () => {
+    // arrange
+    const client = new ApolloClient({
+      cache: new InMemoryCache(),
+      link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
+    });
 
-    // assert
-    expect(useGetTasks).toBeDefined();
-    expect(typeof useGetTasks).toBe('function');
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <ApolloProvider client={client}>{children}</ApolloProvider>
+    );
+
+    // act
+    const { result } = renderHook(() => useGetTasks(), { wrapper });
+
+    // assert - verify hook returns expected interface
+    expect(result.current).toHaveProperty('data');
+    expect(result.current).toHaveProperty('isLoading');
+    expect(result.current).toHaveProperty('isError');
+    expect(result.current).toHaveProperty('error');
+    expect(result.current).toHaveProperty('refetch');
+    expect(typeof result.current.refetch).toBe('function');
   });
 
-  it('given_hook_interface_when_checked_then_has_required_properties', () => {
-    // This test documents the expected interface
-    // Real integration testing happens in apps/web tests
+  it('given_apollo_provider_when_hook_called_then_isLoading_is_boolean', () => {
+    // arrange
+    const client = new ApolloClient({
+      cache: new InMemoryCache(),
+      link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
+    });
 
-    const expectedInterface = {
-      data: expect.any(Array) || undefined,
-      isLoading: expect.any(Boolean),
-      isError: expect.any(Boolean),
-      error: expect.anything(),
-      refetch: expect.any(Function),
-    };
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <ApolloProvider client={client}>{children}</ApolloProvider>
+    );
 
-    // assert - documents the contract
-    expect(expectedInterface).toBeDefined();
+    // act
+    const { result } = renderHook(() => useGetTasks(), { wrapper });
+
+    // assert - isLoading should be boolean (true initially, then false)
+    expect(typeof result.current.isLoading).toBe('boolean');
+  });
+
+  it('given_apollo_provider_when_hook_called_then_isError_is_boolean', () => {
+    // arrange
+    const client = new ApolloClient({
+      cache: new InMemoryCache(),
+      link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
+    });
+
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <ApolloProvider client={client}>{children}</ApolloProvider>
+    );
+
+    // act
+    const { result } = renderHook(() => useGetTasks(), { wrapper });
+
+    // assert - isError should be boolean
+    expect(typeof result.current.isError).toBe('boolean');
   });
 });

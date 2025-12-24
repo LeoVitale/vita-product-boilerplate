@@ -1,7 +1,6 @@
 import { createContext, useContext, useMemo, ReactNode } from 'react';
-import { useApolloClient } from '@apollo/client';
-import { createGetTasksUseCase } from '@repo/application';
-import { IGetTasksUseCase } from '@repo/application';
+import { useApolloClient } from '@apollo/client/react';
+import { IGetTasksUseCase, createGetTasksUseCase } from '@repo/application';
 
 interface UseCasesContextValue {
   getTasksUseCase: IGetTasksUseCase;

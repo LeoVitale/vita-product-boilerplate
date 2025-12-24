@@ -25,7 +25,7 @@ describe('UseCases Factory', () => {
       link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
     });
 
-    // Mock the query method
+    // Mock the query method to return empty tasks
     const mockQuery = vi.fn().mockResolvedValue({
       data: { tasks: [] },
     });
@@ -35,10 +35,12 @@ describe('UseCases Factory', () => {
     const useCase = createGetTasksUseCase(client);
     const result = await useCase.execute();
 
-    // assert
+    // assert - verify repository was injected and use case works
     expect(result.ok).toBe(true);
+    expect(mockQuery).toHaveBeenCalled();
     if (result.ok) {
       expect(Array.isArray(result.value)).toBe(true);
+      expect(result.value).toHaveLength(0);
     }
   });
 });
