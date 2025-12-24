@@ -15,6 +15,7 @@ This boilerplate implements **Advanced Clean Architecture**. The "intelligence" 
 ```mermaid
 graph LR
     Web["Apps / Web"] --> AppPkg["@repo/application"]
+    Mobile["Apps / Mobile"] --> AppPkg
     AppPkg --> DomainPkg["@repo/domain"]
     InfraPkg["@repo/infrastructure"] --> DomainPkg
     AppPkg --> InfraPkg
@@ -45,6 +46,7 @@ graph LR
 .
 ├── apps/
 │   ├── api/          # NestJS GraphQL API
+│   ├── mobile/       # Expo React Native App
 │   └── web/          # Next.js Presentation Layer
 ├── packages/
 │   ├── domain/       # Shared Domain Layer (Entities + Interfaces)
@@ -77,6 +79,13 @@ To start all applications (API, Web) in development mode:
 
 ```bash
 pnpm dev
+```
+
+To start the mobile app:
+
+```bash
+cd apps/mobile
+npx expo start --tunnel
 ```
 
 ### Type Checking & Linting

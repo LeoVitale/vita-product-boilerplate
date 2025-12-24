@@ -13,13 +13,13 @@ Explicar **o que este boilerplate otimiza** e como a arquitetura foi organizada 
 ## O que existe neste repositorio
 
 - Monorepo com **Turborepo + pnpm workspaces**.
-- API GraphQL (`apps/api`) consumida por Web (`apps/web`).
+- API GraphQL (`apps/api`) consumida por Web (`apps/web`) e Mobile (`apps/mobile`).
 - Camadas compartilhadas em `packages/`:
   - `@repo/domain`: entidades + contratos + tipo Result
   - `@repo/application`: use cases + hooks compartilhados (orquestracao)
   - `@repo/infrastructure`: implementacoes concretas (repositorios Apollo, mappers)
   - `@repo/graphql`: tipos/documentos GraphQL gerados (codegen)
-  - `@repo/ui`: primitivas de UI compartilhadas
+  - `@repo/ui`: primitivas de UI compartilhadas (somente web)
 
 ## Ideia central (uma frase)
 
@@ -29,7 +29,8 @@ Explicar **o que este boilerplate otimiza** e como a arquitetura foi organizada 
 
 ```mermaid
 graph LR
-  Web["Apps / Web (UI)"] --> App["@repo/application"]
+  Web["Apps / Web"] --> App["@repo/application"]
+  Mobile["Apps / Mobile"] --> App
   App --> Domain["@repo/domain"]
   Infra["@repo/infrastructure"] --> Domain
   App --> Infra

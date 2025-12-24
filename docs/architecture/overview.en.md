@@ -13,13 +13,13 @@ Explain **what this boilerplate is optimizing for** and how the architecture is 
 ## What this repo is
 
 - A **Turborepo + pnpm workspaces** monorepo.
-- A **GraphQL** API (`apps/api`) consumed by Web (`apps/web`).
+- A **GraphQL** API (`apps/api`) consumed by Web (`apps/web`) and Mobile (`apps/mobile`).
 - A shared, layered architecture in `packages/`:
   - `@repo/domain`: entities + contracts + Result type
   - `@repo/application`: use cases + shared hooks that orchestrate use cases
   - `@repo/infrastructure`: concrete implementations (Apollo repositories, mappers)
   - `@repo/graphql`: generated GraphQL types/documents (codegen)
-  - `@repo/ui`: shared UI primitives
+  - `@repo/ui`: shared UI primitives (web only)
 
 ## Core idea (in one sentence)
 
@@ -29,7 +29,8 @@ Explain **what this boilerplate is optimizing for** and how the architecture is 
 
 ```mermaid
 graph LR
-  Web["Apps / Web (UI)"] --> App["@repo/application"]
+  Web["Apps / Web"] --> App["@repo/application"]
+  Mobile["Apps / Mobile"] --> App
   App --> Domain["@repo/domain"]
   Infra["@repo/infrastructure"] --> Domain
   App --> Infra
