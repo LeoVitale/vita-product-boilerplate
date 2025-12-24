@@ -12,7 +12,7 @@ import { describe, it, expect } from 'vitest';
 describe('useGetTasks', () => {
   it('given_module_when_imported_then_exports_hook', async () => {
     // arrange & act
-    const { useGetTasks } = await import('./use-get-tasks');
+    const { useGetTasks } = await import('./use-get-tasks.js');
 
     // assert
     expect(useGetTasks).toBeDefined();

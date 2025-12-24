@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { GetTasksDocument } from '@repo/graphql';
 import { TaskSchema } from '@repo/domain';
 

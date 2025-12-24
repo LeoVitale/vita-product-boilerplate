@@ -14,9 +14,7 @@ import {
  * @param client - Apollo Client instance
  * @returns Configured GetTasksUseCase instance
  */
-export function createGetTasksUseCase(
-  client: ApolloClient<any>,
-): IGetTasksUseCase {
+export function createGetTasksUseCase(client: ApolloClient): IGetTasksUseCase {
   const repository = new ApolloTaskRepository(client);
   return new GetTasksUseCase(repository);
 }

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import { UseCasesProvider, useUseCases } from './UseCasesProvider';
 import { ReactNode } from 'react';
 
@@ -9,7 +10,7 @@ describe('UseCasesProvider', () => {
     // arrange
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      uri: 'http://localhost:4000/graphql',
+      link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
     });
 
     const wrapper = ({ children }: { children: ReactNode }) => (

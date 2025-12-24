@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useMemo, ReactNode } from 'react';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { createGetTasksUseCase } from '@repo/application';
 import { IGetTasksUseCase } from '@repo/application';
 
