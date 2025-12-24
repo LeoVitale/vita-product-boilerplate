@@ -6,7 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { useColorScheme } from 'react-native';
 import { Navigation } from './navigation';
-import { ApolloProvider } from './providers/ApolloProvider';
+import { ApolloProvider, UseCasesProvider } from './providers';
 import bell from './assets/bell.png';
 import newspaper from './assets/newspaper.png';
 
@@ -23,16 +23,18 @@ export function App() {
 
   return (
     <ApolloProvider>
-      <Navigation
-        theme={theme}
-        linking={{
-          enabled: 'auto',
-          prefixes: [prefix],
-        }}
-        onReady={() => {
-          SplashScreen.hideAsync();
-        }}
-      />
+      <UseCasesProvider>
+        <Navigation
+          theme={theme}
+          linking={{
+            enabled: 'auto',
+            prefixes: [prefix],
+          }}
+          onReady={() => {
+            SplashScreen.hideAsync();
+          }}
+        />
+      </UseCasesProvider>
     </ApolloProvider>
   );
 }
