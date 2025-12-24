@@ -15,10 +15,10 @@ interface UseCasesProviderProps {
 
 /**
  * Composition Root Provider for Use Cases
- * 
+ *
  * This provider centralizes dependency injection for all use cases.
  * It creates use case instances with properly injected repositories.
- * 
+ *
  * Usage:
  * ```tsx
  * const { getTasksUseCase } = useUseCases();
@@ -31,7 +31,7 @@ export function UseCasesProvider({ children }: UseCasesProviderProps) {
     () => ({
       getTasksUseCase: createGetTasksUseCase(client),
     }),
-    [client]
+    [client],
   );
 
   return (
@@ -43,7 +43,7 @@ export function UseCasesProvider({ children }: UseCasesProviderProps) {
 
 /**
  * Hook to access use cases from context
- * 
+ *
  * @throws Error if used outside UseCasesProvider
  */
 export function useUseCases(): UseCasesContextValue {
@@ -53,4 +53,3 @@ export function useUseCases(): UseCasesContextValue {
   }
   return context;
 }
-

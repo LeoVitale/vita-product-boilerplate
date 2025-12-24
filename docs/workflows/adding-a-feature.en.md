@@ -63,8 +63,14 @@ Build from the inside out:
     const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
       fetchPolicy: 'cache-and-network',
     });
-    const tasks = data?.tasks?.map(t => TaskSchema.parse(t));
-    return { data: tasks, isLoading: loading, isError: !!error, error, refetch };
+    const tasks = data?.tasks?.map((t) => TaskSchema.parse(t));
+    return {
+      data: tasks,
+      isLoading: loading,
+      isError: !!error,
+      error,
+      refetch,
+    };
   }
   ```
 
@@ -78,7 +84,7 @@ Build from the inside out:
       getTasksUseCase: createGetTasksUseCase(client),
       // add new use cases here
     }),
-    [client]
+    [client],
   );
   ```
 

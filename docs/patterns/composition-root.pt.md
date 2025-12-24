@@ -20,6 +20,7 @@ function TaskList() {
 ```
 
 **Problemas:**
+
 - Código duplicado em cada componente
 - Difícil de testar (dependências hardcoded)
 - Difícil de trocar implementações
@@ -154,9 +155,11 @@ export function createGetTasksUseCase(client: ApolloClient) {
 ### 3. DRY (Don't Repeat Yourself)
 
 Sem composition root:
+
 - 10 componentes = 10x `new ApolloTaskRepository` + `new GetTasksUseCase`
 
 Com composition root:
+
 - 10 componentes = 10x `useUseCases()` (factory chamado 1x)
 
 ## Erros Comuns
@@ -204,10 +207,10 @@ function TaskList() {
 // Ruim: regra de negócio no provider
 export function UseCasesProvider({ children }) {
   const client = useApolloClient();
-  
+
   // ❌ Não faça isso aqui!
   const filteredTasks = tasks.filter(t => t.completed);
-  
+
   return <Context.Provider value={...} />;
 }
 ```
@@ -218,14 +221,14 @@ export function UseCasesProvider({ children }) {
 // Bom: provider só cria instâncias
 export function UseCasesProvider({ children }) {
   const client = useApolloClient();
-  
+
   const useCases = useMemo(
     () => ({
       getTasksUseCase: createGetTasksUseCase(client),
     }),
     [client]
   );
-  
+
   return <Context.Provider value={useCases}>{children}</Context.Provider>;
 }
 ```
@@ -235,4 +238,3 @@ export function UseCasesProvider({ children }) {
 - Mark Seemann - Dependency Injection: https://blog.ploeh.dk/2011/07/28/CompositionRoot/
 - Clean Architecture (Uncle Bob): https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
 - Dependency Injection Principles: https://www.martinfowler.com/articles/injection.html
-

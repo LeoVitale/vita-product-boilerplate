@@ -11,13 +11,7 @@ import {
 import { useGetTasks } from '@repo/application';
 
 export function TasksScreen() {
-  const {
-    data: tasks,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useGetTasks();
+  const { data: tasks, isLoading, isError, error, refetch } = useGetTasks();
 
   if (isLoading) {
     return (

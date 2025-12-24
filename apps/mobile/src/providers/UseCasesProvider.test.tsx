@@ -33,4 +33,3 @@ describe('UseCasesProvider', () => {
     }).toThrow('useUseCases must be used within UseCasesProvider');
   });
 });
-

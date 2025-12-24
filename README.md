@@ -91,6 +91,7 @@ pnpm lint
 ### Testing
 
 The project uses a **hybrid testing strategy**:
+
 - **Vitest** for packages (`domain`, `application`, `infrastructure`) and `web`
 - **Jest** for `mobile` (React Native) and `api` (NestJS)
 

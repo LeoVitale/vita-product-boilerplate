@@ -13,11 +13,13 @@ The project uses **GraphQL end-to-end** (NestJS GraphQL API + codegen). Apollo C
 ### 2. Normalized Cache
 
 Apollo maintains a **normalized cache** that:
+
 - Stores each entity only once (by `id` and `__typename`)
 - Automatically updates all queries using that entity
 - Avoids data duplication in memory
 
 **Example:**
+
 ```typescript
 // Query 1: task list
 { tasks { id, title } }
@@ -37,12 +39,12 @@ Apollo maintains a **normalized cache** that:
 
 Apollo offers fine-grained control over when to fetch data:
 
-| Policy | Behavior |
-|--------|----------|
-| `cache-first` | Uses cache if available, only fetches if missing |
-| `cache-and-network` | Returns cache immediately + fetches update |
-| `network-only` | Always fetches from network, ignores cache |
-| `no-cache` | Doesn't use cache (useful for sensitive data) |
+| Policy              | Behavior                                         |
+| ------------------- | ------------------------------------------------ |
+| `cache-first`       | Uses cache if available, only fetches if missing |
+| `cache-and-network` | Returns cache immediately + fetches update       |
+| `network-only`      | Always fetches from network, ignores cache       |
+| `no-cache`          | Doesn't use cache (useful for sensitive data)    |
 
 **In this project, we use `cache-and-network` by default** for better UX.
 
@@ -83,7 +85,7 @@ export function useGetTasks() {
   const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
     fetchPolicy: 'cache-and-network',
   });
-  
+
   return { data, isLoading: loading, isError: !!error, error, refetch };
 }
 ```
@@ -119,6 +121,7 @@ Apollo Client **does not violate** Clean Architecture:
 ## When NOT to Use Apollo
 
 Consider alternatives if:
+
 - You don't use GraphQL (use React Query + fetch/axios)
 - You want total control over cache (implement custom)
 - You have very specific offline sync requirements
@@ -153,7 +156,7 @@ const tasks = data?.tasks; // may have null/undefined fields
 
 ```typescript
 // Good: validate with domain schema
-const tasks = data?.tasks?.map(t => TaskSchema.parse(t));
+const tasks = data?.tasks?.map((t) => TaskSchema.parse(t));
 ```
 
 ## Links
@@ -162,4 +165,3 @@ const tasks = data?.tasks?.map(t => TaskSchema.parse(t));
 - Caching: https://www.apollographql.com/docs/react/caching/overview/
 - Fetch Policies: https://www.apollographql.com/docs/react/data/queries/#setting-a-fetch-policy
 - Apollo DevTools: https://www.apollographql.com/docs/react/development-testing/developer-tooling/
-
