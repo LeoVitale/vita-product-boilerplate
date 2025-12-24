@@ -82,10 +82,10 @@ Use **Given / When / Then** format for clarity:
 test('given_valid_task_when_validate_then_passes', () => {
   // arrange
   const task = { id: '1', title: 'Test', completed: false };
-  
+
   // act
   const result = TaskSchema.safeParse(task);
-  
+
   // assert
   expect(result.success).toBe(true);
 });
@@ -102,6 +102,7 @@ Each package/app has its own `vitest.config.ts` or `jest.config.js`:
 ## When to Write Tests
 
 **TDD is mandatory** for:
+
 - Business logic (domain, use cases)
 - Repositories (infrastructure)
 - Custom hooks (application)
@@ -114,4 +115,3 @@ See: [TDD Rules](./../workflows/tdd.en.md)
 - Jest: https://jestjs.io/
 - Testing Library: https://testing-library.com/
 - React Native Testing Library: https://callstack.github.io/react-native-testing-library/
-

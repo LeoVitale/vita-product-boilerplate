@@ -4,12 +4,12 @@ import { TaskSchema } from '@repo/domain';
 
 /**
  * Hook to fetch tasks using Apollo Client
- * 
+ *
  * This hook uses Apollo's useQuery with cache-and-network policy:
  * - Returns cached data immediately (if available)
  * - Fetches fresh data in the background
  * - Automatically handles loading, error, and refetch states
- * 
+ *
  * @returns Object with data, loading state, error state, and refetch function
  */
 export function useGetTasks() {
@@ -23,7 +23,7 @@ export function useGetTasks() {
       id: t.id,
       title: t.title,
       completed: t.completed,
-    })
+    }),
   );
 
   return {
