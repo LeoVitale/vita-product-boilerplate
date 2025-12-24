@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing';
 import { GetTasksDocument } from '@repo/graphql';
 import { useGetTasks } from './use-get-tasks';

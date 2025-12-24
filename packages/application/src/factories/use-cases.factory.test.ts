@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { createGetTasksUseCase } from './use-cases.factory';
 
 describe('UseCases Factory', () => {
@@ -7,7 +7,7 @@ describe('UseCases Factory', () => {
     // arrange
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      uri: 'http://localhost:4000/graphql',
+      link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
     });
 
     // act
@@ -22,7 +22,7 @@ describe('UseCases Factory', () => {
     // arrange
     const client = new ApolloClient({
       cache: new InMemoryCache(),
-      uri: 'http://localhost:4000/graphql',
+      link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
     });
 
     // Mock the query method
