@@ -1,18 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useGetTasks, GetTasksUseCase } from '@repo/application';
-import { ApolloTaskRepository } from '@repo/infrastructure';
-import { apolloClient } from '@/infrastructure/graphql/apollo-client';
+import { useGetTasks } from '@repo/application';
 import styles from './page.module.css';
 
 export default function Home() {
-  const useCase = useMemo(() => {
-    const repository = new ApolloTaskRepository(apolloClient);
-    return new GetTasksUseCase(repository);
-  }, []);
-
-  const { data: tasks, isLoading, isError, error } = useGetTasks(useCase);
+  const { data: tasks, isLoading, isError, error } = useGetTasks();
 
   return (
     <div className={styles.page}>

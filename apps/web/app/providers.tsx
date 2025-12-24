@@ -2,12 +2,12 @@
 
 import { ApolloProvider } from '@apollo/client/react';
 import { apolloClient } from '@/infrastructure/graphql/apollo-client';
-
+import { UseCasesProvider } from '@/providers';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ApolloProvider client={apolloClient}>
-      {children}
+      <UseCasesProvider>{children}</UseCasesProvider>
     </ApolloProvider>
   );
 }
