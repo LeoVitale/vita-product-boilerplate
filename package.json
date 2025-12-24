@@ -46,6 +46,12 @@
   "pnpm": {
     "overrides": {
       "undici": "^7.0.0"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0"
+      }
     }
   }
 }
