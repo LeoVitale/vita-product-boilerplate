@@ -1,88 +1,78 @@
 module.exports = {
   'apps/**/*.{ts,tsx}': (filenames) => {
-    const commands = [];
-    const byApp = {};
-    
     // Filter out prisma config files (they're outside tsconfig scope)
     const filtered = filenames.filter((f) => !f.includes('/prisma/'));
-    
-    filtered.forEach((filename) => {
-      // Remove caminho absoluto se presente
-      const relativePath = filename.replace(process.cwd() + '/', '');
-      const parts = relativePath.split('/');
-      const app = parts[1];
-      if (!byApp[app]) {
-        byApp[app] = [];
+    if (filtered.length === 0) return [];
+
+    // Group files by app to run eslint with correct config
+    const byApp = {};
+    filtered.forEach((f) => {
+      const match = f.match(/apps\/([^/]+)/);
+      if (match) {
+        const app = match[1];
+        if (!byApp[app]) byApp[app] = [];
+        byApp[app].push(f);
       }
-      // Manter apenas o caminho relativo ao app
-      byApp[app].push(relativePath.replace(`apps/${app}/`, ''));
     });
-    
-    Object.keys(byApp).forEach((app) => {
-      commands.push(`cd apps/${app} && npx eslint --fix ${byApp[app].join(' ')}`);
-    });
-    
-    return commands;
+
+    return Object.entries(byApp).map(
+      ([app, files]) =>
+        `eslint --fix --config apps/${app}/eslint.config.mjs ${files.join(' ')}`,
+    );
   },
   'packages/**/*.{ts,tsx}': (filenames) => {
-    const commands = [];
+    if (filenames.length === 0) return [];
+
     const byPkg = {};
-    
-    filenames.forEach((filename) => {
-      const relativePath = filename.replace(process.cwd() + '/', '');
-      const parts = relativePath.split('/');
-      const pkg = parts[1];
-      if (!byPkg[pkg]) {
-        byPkg[pkg] = [];
+    filenames.forEach((f) => {
+      const match = f.match(/packages\/([^/]+)/);
+      if (match) {
+        const pkg = match[1];
+        if (!byPkg[pkg]) byPkg[pkg] = [];
+        byPkg[pkg].push(f);
       }
-      byPkg[pkg].push(relativePath.replace(`packages/${pkg}/`, ''));
     });
-    
-    Object.keys(byPkg).forEach((pkg) => {
-      commands.push(`cd packages/${pkg} && npx eslint --fix ${byPkg[pkg].join(' ')}`);
-    });
-    
-    return commands;
+
+    return Object.entries(byPkg).map(
+      ([pkg, files]) =>
+        `eslint --fix --config packages/${pkg}/eslint.config.mjs ${files.join(' ')}`,
+    );
   },
   'apps/**/*.{js,jsx}': (filenames) => {
-    const commands = [];
+    if (filenames.length === 0) return [];
+
     const byApp = {};
-    
-    filenames.forEach((filename) => {
-      const relativePath = filename.replace(process.cwd() + '/', '');
-      const parts = relativePath.split('/');
-      const app = parts[1];
-      if (!byApp[app]) {
-        byApp[app] = [];
+    filenames.forEach((f) => {
+      const match = f.match(/apps\/([^/]+)/);
+      if (match) {
+        const app = match[1];
+        if (!byApp[app]) byApp[app] = [];
+        byApp[app].push(f);
       }
-      byApp[app].push(relativePath.replace(`apps/${app}/`, ''));
     });
-    
-    Object.keys(byApp).forEach((app) => {
-      commands.push(`cd apps/${app} && npx eslint --fix ${byApp[app].join(' ')}`);
-    });
-    
-    return commands;
+
+    return Object.entries(byApp).map(
+      ([app, files]) =>
+        `eslint --fix --config apps/${app}/eslint.config.mjs ${files.join(' ')}`,
+    );
   },
   'packages/**/*.{js,jsx}': (filenames) => {
-    const commands = [];
+    if (filenames.length === 0) return [];
+
     const byPkg = {};
-    
-    filenames.forEach((filename) => {
-      const relativePath = filename.replace(process.cwd() + '/', '');
-      const parts = relativePath.split('/');
-      const pkg = parts[1];
-      if (!byPkg[pkg]) {
-        byPkg[pkg] = [];
+    filenames.forEach((f) => {
+      const match = f.match(/packages\/([^/]+)/);
+      if (match) {
+        const pkg = match[1];
+        if (!byPkg[pkg]) byPkg[pkg] = [];
+        byPkg[pkg].push(f);
       }
-      byPkg[pkg].push(relativePath.replace(`packages/${pkg}/`, ''));
     });
-    
-    Object.keys(byPkg).forEach((pkg) => {
-      commands.push(`cd packages/${pkg} && npx eslint --fix ${byPkg[pkg].join(' ')}`);
-    });
-    
-    return commands;
+
+    return Object.entries(byPkg).map(
+      ([pkg, files]) =>
+        `eslint --fix --config packages/${pkg}/eslint.config.mjs ${files.join(' ')}`,
+    );
   },
   '*.{json,md,yml,yaml}': ['prettier --write'],
   '*.css': ['prettier --write'],
