@@ -1,6 +1,7 @@
 import { config as baseConfig } from './base.js';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import globals from 'globals';
 
 /**
  * ESLint configuration for React Native apps.
@@ -24,6 +25,18 @@ export const reactNativeConfig = [
       ...reactHooksPlugin.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
+    },
+  },
+  {
+    // CommonJS config files (metro.config.js, etc.)
+    files: ['**/*.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
   {

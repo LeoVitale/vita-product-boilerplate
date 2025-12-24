@@ -38,8 +38,10 @@ module.exports = {
     });
 
     // Only run eslint for packages that have eslint.config.mjs
+    // Excluded: graphql (generated), config (tooling), application, infrastructure, domain (no eslint config)
+    const pkgsWithoutEslint = ['graphql', 'config', 'application', 'infrastructure', 'domain'];
     return Object.entries(byPkg)
-      .filter(([pkg]) => !['graphql', 'config'].includes(pkg))
+      .filter(([pkg]) => !pkgsWithoutEslint.includes(pkg))
       .map(
         ([pkg, files]) =>
           `eslint --fix --config packages/${pkg}/eslint.config.mjs ${files.join(' ')}`,

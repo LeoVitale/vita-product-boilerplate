@@ -1,16 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import { TaskSchema } from '@repo/domain';
-
-// Test that domain package is loaded correctly
-console.log('Domain loaded:', !!TaskSchema);
+import { ApolloProvider } from '@apollo/client/react';
+import { apolloClient } from './src/infrastructure/graphql/apollo-client';
+import { UseCasesProvider } from './src/providers';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Packages loaded: {TaskSchema ? '✓' : '✗'}</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ApolloProvider client={apolloClient}>
+      <UseCasesProvider>
+        <View style={styles.container}>
+          <Text>Apollo Client configured ✓</Text>
+          <StatusBar style="auto" />
+        </View>
+      </UseCasesProvider>
+    </ApolloProvider>
   );
 }
 
