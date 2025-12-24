@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./package.json",
+    "./env": "./src/env.ts",
     "./typescript/*": "./typescript/*",
     "./eslint/*": "./eslint/*.js",
     "./eslint/*.js": "./eslint/*.js",
