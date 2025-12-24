@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.tsx",
   "scripts": {
-    "dev": "expo start --dev-client",
+    "dev": "expo start --dev-client --tunnel",
     "web": "expo start --web",
     "android": "expo run:android",
     "ios": "expo run:ios",

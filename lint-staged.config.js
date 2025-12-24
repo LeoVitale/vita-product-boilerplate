@@ -23,10 +23,12 @@ module.exports = {
     );
   },
   'packages/**/*.{ts,tsx}': (filenames) => {
-    if (filenames.length === 0) return [];
+    // Filter out generated files (they don't need linting)
+    const filtered = filenames.filter((f) => !f.includes('/generated/'));
+    if (filtered.length === 0) return [];
 
     const byPkg = {};
-    filenames.forEach((f) => {
+    filtered.forEach((f) => {
       const match = f.match(/packages\/([^/]+)/);
       if (match) {
         const pkg = match[1];
@@ -35,10 +37,13 @@ module.exports = {
       }
     });
 
-    return Object.entries(byPkg).map(
-      ([pkg, files]) =>
-        `eslint --fix --config packages/${pkg}/eslint.config.mjs ${files.join(' ')}`,
-    );
+    // Only run eslint for packages that have eslint.config.mjs
+    return Object.entries(byPkg)
+      .filter(([pkg]) => !['graphql'].includes(pkg))
+      .map(
+        ([pkg, files]) =>
+          `eslint --fix --config packages/${pkg}/eslint.config.mjs ${files.join(' ')}`,
+      );
   },
   'apps/**/*.{js,jsx}': (filenames) => {
     if (filenames.length === 0) return [];

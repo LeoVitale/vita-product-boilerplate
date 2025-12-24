@@ -14,6 +14,31 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
+  DateTime: { input: any; output: any; }
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  createTask: Task;
+  deleteTask: Task;
+  toggleTaskComplete: Task;
+};
+
+
+export type MutationCreateTaskArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteTaskArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationToggleTaskCompleteArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type Query = {
@@ -24,8 +49,11 @@ export type Query = {
 export type Task = {
   __typename?: 'Task';
   completed: Scalars['Boolean']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type GetTasksQueryVariables = Exact<{ [key: string]: never; }>;
