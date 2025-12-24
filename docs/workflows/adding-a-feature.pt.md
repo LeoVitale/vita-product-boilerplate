@@ -40,19 +40,52 @@ Construa de dentro para fora:
 - Chame Apollo/HTTP/storage.
 - Mapeie dado externo para entidade do dominio usando schemas Zod.
 
-### 5) Application: hook compartilhado
+### 5) Application: factory para o use case
 
-- Gerencie estado amigavel para UI: `{ data, isLoading, isError, error, refetch }`.
-- Chame o use case e exponha um contrato estavel.
+- Crie uma factory function em `packages/application/src/factories/`.
+- A factory recebe dependencias (ex: `ApolloClient`) e retorna o use case pronto.
+- Exemplo:
+  ```typescript
+  export function createGetTasksUseCase(client: ApolloClient) {
+    const repository = new ApolloTaskRepository(client);
+    return new GetTasksUseCase(repository);
+  }
+  ```
 
-### 6) Apps: composition root (wiring)
+### 6) Application: hook compartilhado
 
-- Instancie repositorio + use case com `useMemo` (ou provider).
-- Injete o use case no hook (ou via provider de dependencias).
+- Use Apollo `useQuery` diretamente com `fetchPolicy: 'cache-and-network'`.
+- Valide dados com Zod antes de retornar.
+- Exponha interface padrao: `{ data, isLoading, isError, error, refetch }`.
+- Exemplo:
+  ```typescript
+  export function useGetTasks() {
+    const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
+      fetchPolicy: 'cache-and-network',
+    });
+    const tasks = data?.tasks?.map(t => TaskSchema.parse(t));
+    return { data: tasks, isLoading: loading, isError: !!error, error, refetch };
+  }
+  ```
 
-### 7) UI: renderizar
+### 7) Apps: composition root (provider)
+
+- Adicione o novo use case ao `UseCasesProvider` usando a factory.
+- Exemplo:
+  ```typescript
+  const useCases = useMemo(
+    () => ({
+      getTasksUseCase: createGetTasksUseCase(client),
+      // adicione aqui novos use cases
+    }),
+    [client]
+  );
+  ```
+
+### 8) UI: renderizar
 
 - Componentes/telas renderizam com base no hook.
+- Hooks vem de `@repo/application` (nao crie localmente).
 - Regra de negocio fica no use case; UI fica na UI.
 
 ## Critetrios de pronto
