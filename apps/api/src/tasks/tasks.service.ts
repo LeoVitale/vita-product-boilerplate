@@ -1,32 +1,37 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { Task } from './task.model';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = [
-    { id: '1', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '2', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '3', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '4', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '5', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '6', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '7', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '8', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '9', title: 'Initial Task (Default Arch)', completed: false },
-    { id: '10', title: 'Initial Task (Default Arch)', completed: false },
-  ];
+  constructor(private readonly prisma: PrismaService) {}
 
-  findAll(): Task[] {
-    return this.tasks;
+  async findAll(): Promise<Task[]> {
+    return this.prisma.task.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  create(title: string): Task {
-    const newTask = {
-      id: Math.random().toString(36).substr(2, 9),
-      title,
-      completed: false,
-    };
-    this.tasks.push(newTask);
-    return newTask;
+  async create(title: string, description?: string): Promise<Task> {
+    return this.prisma.task.create({
+      data: {
+        title,
+        description,
+      },
+    });
+  }
+
+  async delete(id: string): Promise<Task> {
+    return this.prisma.task.delete({
+      where: { id },
+    });
+  }
+
+  async toggleComplete(id: string): Promise<Task> {
+    const task = await this.prisma.task.findUniqueOrThrow({ where: { id } });
+    return this.prisma.task.update({
+      where: { id },
+      data: { completed: !task.completed },
+    });
   }
 }

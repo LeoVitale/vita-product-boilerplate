@@ -8,6 +8,15 @@ export class Task {
   @Field()
   title: string;
 
+  @Field({ nullable: true })
+  description?: string | null;
+
   @Field()
   completed: boolean;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
 }
