@@ -34,6 +34,8 @@ graph LR
 - **Zod as Source of Truth**: Entities are defined via Zod schemas for runtime validation and static type inference.
 - **Functional Result Pattern**: Error handling is treated as data, avoiding unexpected exceptions.
 - **Dependency Inversion**: High-level application logic depends on abstract repository interfaces, not concrete implementations.
+- **Apollo Client with Normalized Cache**: GraphQL client with automatic caching, dedupe, and background refetch for optimal UX.
+- **Composition Root**: Centralized dependency injection via factories and providers, eliminating scattered `new` calls.
 - **Single Source of Truth**: Business rules and data fetching logic are shared between Web and Mobile.
 
 ---
@@ -86,6 +88,23 @@ pnpm check-types
 pnpm lint
 ```
 
+### Testing
+
+The project uses a **hybrid testing strategy**:
+- **Vitest** for packages (`domain`, `application`, `infrastructure`) and `web`
+- **Jest** for `mobile` (React Native) and `api` (NestJS)
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests for specific package
+pnpm --filter @repo/domain test
+pnpm --filter @repo/application test
+```
+
+See [`docs/testing/setup.en.md`](./docs/testing/setup.en.md) for details.
+
 ### Code Generation (GraphQL)
 
 ```bash
@@ -98,6 +117,10 @@ pnpm generate
 
 - **Start here (EN)**: [`docs/README.en.md`](./docs/README.en.md)
 - **Comece aqui (PT)**: [`docs/README.pt.md`](./docs/README.pt.md)
+- **Architecture**:
+  - [Apollo Client](./docs/architecture/apollo-client.en.md)
+  - [Composition Root Pattern](./docs/patterns/composition-root.en.md)
+  - [Testing Setup](./docs/testing/setup.en.md)
 - **Cursor rules (architecture + TDD)**: [`./.cursor/rules/`](./.cursor/rules/)
 - Turborepo: `https://turborepo.com/docs`
 
