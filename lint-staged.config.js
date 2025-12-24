@@ -3,7 +3,10 @@ module.exports = {
     const commands = [];
     const byApp = {};
     
-    filenames.forEach((filename) => {
+    // Filter out prisma config files (they're outside tsconfig scope)
+    const filtered = filenames.filter((f) => !f.includes('/prisma/'));
+    
+    filtered.forEach((filename) => {
       // Remove caminho absoluto se presente
       const relativePath = filename.replace(process.cwd() + '/', '');
       const parts = relativePath.split('/');
