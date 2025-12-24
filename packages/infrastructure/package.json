@@ -12,7 +12,9 @@
     }
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@repo/domain": "workspace:*",
@@ -23,6 +25,8 @@
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
-    "typescript": "^5.9.3"
+    "@vitest/ui": "^2.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^2.0.0"
   }
 }
