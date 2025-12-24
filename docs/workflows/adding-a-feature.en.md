@@ -40,19 +40,52 @@ Build from the inside out:
 - Call Apollo/HTTP/storage.
 - Map external data into domain entities using Zod schemas.
 
-### 5) Application: shared hook
+### 5) Application: factory for the use case
 
-- Manage UI state: `{ data, isLoading, isError, error, refetch }`.
-- Call the use case and expose results in a stable shape.
+- Create a factory function in `packages/application/src/factories/`.
+- The factory receives dependencies (e.g., `ApolloClient`) and returns the ready-to-use use case.
+- Example:
+  ```typescript
+  export function createGetTasksUseCase(client: ApolloClient) {
+    const repository = new ApolloTaskRepository(client);
+    return new GetTasksUseCase(repository);
+  }
+  ```
 
-### 6) Apps: composition root (wiring)
+### 6) Application: shared hook
 
-- Instantiate repository + use case using `useMemo` (or a provider).
-- Inject the use case into the hook (or via dependency provider).
+- Use Apollo `useQuery` directly with `fetchPolicy: 'cache-and-network'`.
+- Validate data with Zod before returning.
+- Expose standard interface: `{ data, isLoading, isError, error, refetch }`.
+- Example:
+  ```typescript
+  export function useGetTasks() {
+    const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
+      fetchPolicy: 'cache-and-network',
+    });
+    const tasks = data?.tasks?.map(t => TaskSchema.parse(t));
+    return { data: tasks, isLoading: loading, isError: !!error, error, refetch };
+  }
+  ```
 
-### 7) UI: render
+### 7) Apps: composition root (provider)
+
+- Add the new use case to `UseCasesProvider` using the factory.
+- Example:
+  ```typescript
+  const useCases = useMemo(
+    () => ({
+      getTasksUseCase: createGetTasksUseCase(client),
+      // add new use cases here
+    }),
+    [client]
+  );
+  ```
+
+### 8) UI: render
 
 - Components/screens render based on hook output.
+- Hooks come from `@repo/application` (don't create locally).
 - Keep UI logic in UI; keep business rules in use cases.
 
 ## Done criteria
