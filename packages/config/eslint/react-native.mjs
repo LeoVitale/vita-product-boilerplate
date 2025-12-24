@@ -1,6 +1,6 @@
-import { config as baseConfig } from "./base.js";
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
+import { config as baseConfig } from './base.js';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 
 /**
  * ESLint configuration for React Native apps.
@@ -12,22 +12,21 @@ export const reactNativeConfig = [
   {
     plugins: {
       react: reactPlugin,
-      "react-hooks": reactHooksPlugin,
+      'react-hooks': reactHooksPlugin,
     },
     settings: {
       react: {
-        version: "detect",
+        version: 'detect',
       },
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
-      "react/react-in-jsx-scope": "off",
-      "react/prop-types": "off",
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
     },
   },
   {
-    ignores: [".expo/**", "node_modules/**"],
+    ignores: ['.expo/**', 'node_modules/**'],
   },
 ];
-

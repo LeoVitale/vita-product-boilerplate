@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  undici: ^7.0.0
+
 importers:
   .:
     devDependencies:
@@ -174,9 +177,15 @@ importers:
         specifier: 0.81.5
         version: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
     devDependencies:
+      '@repo/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@types/react':
         specifier: ~19.1.0
         version: 19.1.17
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2(jiti@2.6.1)
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
@@ -12966,12 +12975,12 @@ packages:
         integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==,
       }
 
-  undici@6.22.0:
+  undici@7.16.0:
     resolution:
       {
-        integrity: sha512-hU/10obOIu62MGYjdskASR3CUAiYaFTtC9Pa6vHyf//mAipSvSQg6od2CnJswq7fvzNS3zJhxoRkgNVaHurWKw==,
+        integrity: sha512-QEg3HPMll0o3t2ourKwOeUAZ159Kn9mx5pnzHRQO8+Wixmh88YdZRiIwat0iNzNNXn0yoEtXJqFpyW7eM8BV7g==,
       }
-    engines: { node: '>=18.17' }
+    engines: { node: '>=20.18.1' }
 
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution:
@@ -14871,7 +14880,7 @@ snapshots:
       structured-headers: 0.4.1
       tar: 7.5.2
       terminal-link: 2.1.1
-      undici: 6.22.0
+      undici: 7.16.0
       wrap-ansi: 7.0.0
       ws: 8.18.3
     optionalDependencies:
@@ -22554,7 +22563,7 @@ snapshots:
 
   undici-types@7.16.0: {}
 
-  undici@6.22.0: {}
+  undici@7.16.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
