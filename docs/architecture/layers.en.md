@@ -25,7 +25,7 @@ Use this page whenever you are unsure where a file should live or what a module 
 - **Owns**: concrete adapters (e.g., Apollo repositories), mappers, IO concerns.
 - **Implements**: interfaces defined in `@repo/domain`.
 
-### `apps/web` and `apps/mobile`
+### `apps/web`
 
 - **Owns**: UI rendering + composition root (wiring dependencies).
 - **Must not**: contain business rules; only coordinate DI and render state.
@@ -51,7 +51,7 @@ graph LR
 - Domain contract: `packages/domain/src/repositories/task-repository.interface.ts`
 - Use case: `packages/application/src/use-cases/get-tasks.use-case.ts`
 - Infra repository: `packages/infrastructure/src/repositories/apollo-task-repository.ts`
-- UI usage: `apps/mobile/src/screens/TasksScreen.tsx`
+- UI usage: `apps/web/src/components/TaskList.tsx`
 
 ## Common mistakes
 

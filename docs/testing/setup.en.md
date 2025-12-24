@@ -15,16 +15,15 @@ Used in shared packages and web app:
 - `packages/infrastructure` - Repository and adapter tests
 - `apps/web` - Next.js component tests
 
-**Why?** Vitest is fast, modern, and integrates well with TypeScript and React in non-native environments.
+**Why?** Vitest is fast, modern, and integrates well with TypeScript and React.
 
 ### Jest
 
-Used in mobile and API apps:
+Used in API app:
 
-- `apps/mobile` - React Native tests (Expo ecosystem standard)
 - `apps/api` - NestJS tests (already configured)
 
-**Why?** Jest is the established standard for React Native and NestJS, with better support for native modules.
+**Why?** Jest is the established standard for NestJS.
 
 ## How to Run Tests
 
@@ -97,7 +96,7 @@ Each package/app has its own `vitest.config.ts` or `jest.config.js`:
 
 - **Domain/Infrastructure**: `environment: 'node'`
 - **Application/Web**: `environment: 'jsdom'` (for React hooks/components)
-- **Mobile/API**: Jest (specific configuration)
+- **API**: Jest (specific configuration)
 
 ## When to Write Tests
 
@@ -114,4 +113,3 @@ See: [TDD Rules](./../workflows/tdd.en.md)
 - Vitest: https://vitest.dev/
 - Jest: https://jestjs.io/
 - Testing Library: https://testing-library.com/
-- React Native Testing Library: https://callstack.github.io/react-native-testing-library/

@@ -25,7 +25,7 @@ Use esta pagina sempre que tiver duvida onde um arquivo deve ficar ou o que um m
 - **Responsavel por**: adapters concretos (ex: repositorios Apollo), mappers, IO.
 - **Implementa**: interfaces definidas no `@repo/domain`.
 
-### `apps/web` e `apps/mobile`
+### `apps/web`
 
 - **Responsavel por**: UI + composition root (wiring de dependencias).
 - **Nao pode**: conter regra de negocio; apenas DI e renderizacao de estado.
@@ -51,7 +51,7 @@ graph LR
 - Contrato: `packages/domain/src/repositories/task-repository.interface.ts`
 - Use case: `packages/application/src/use-cases/get-tasks.use-case.ts`
 - Repo infra: `packages/infrastructure/src/repositories/apollo-task-repository.ts`
-- Uso na UI: `apps/mobile/src/screens/TasksScreen.tsx`
+- Uso na UI: `apps/web/src/components/TaskList.tsx`
 
 ## Erros comuns
 

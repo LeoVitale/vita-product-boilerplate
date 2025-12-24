@@ -1,10 +1,10 @@
 # Vita Product Boilerplate
 
-A high-performance monorepo boilerplate for building professional-grade web and mobile applications using **Advanced Clean Architecture**, **SOLID principles**, and **Functional Patterns**.
+A high-performance monorepo boilerplate for building professional-grade web applications using **Advanced Clean Architecture**, **SOLID principles**, and **Functional Patterns**.
 
 ## 🚀 Purpose
 
-The goal of this project is to provide a rock-solid, scalable foundation for cross-platform products. It enforces a strict separation of concerns, ensuring that business logic is written once and shared across web (Next.js) and mobile (Expo) apps, while maintaining high testability and type-safety.
+The goal of this project is to provide a rock-solid, scalable foundation for web products. It enforces a strict separation of concerns, ensuring that business logic is written once and shared across the application, while maintaining high testability and type-safety.
 
 ## 🏗️ Architecture
 
@@ -15,7 +15,6 @@ This boilerplate implements **Advanced Clean Architecture**. The "intelligence" 
 ```mermaid
 graph LR
     Web["Apps / Web"] --> AppPkg["@repo/application"]
-    Mobile["Apps / Mobile"] --> AppPkg
     AppPkg --> DomainPkg["@repo/domain"]
     InfraPkg["@repo/infrastructure"] --> DomainPkg
     AppPkg --> InfraPkg
@@ -36,7 +35,7 @@ graph LR
 - **Dependency Inversion**: High-level application logic depends on abstract repository interfaces, not concrete implementations.
 - **Apollo Client with Normalized Cache**: GraphQL client with automatic caching, dedupe, and background refetch for optimal UX.
 - **Composition Root**: Centralized dependency injection via factories and providers, eliminating scattered `new` calls.
-- **Single Source of Truth**: Business rules and data fetching logic are shared between Web and Mobile.
+- **Single Source of Truth**: Business rules and data fetching logic are centralized in shared packages.
 
 ---
 
@@ -46,8 +45,7 @@ graph LR
 .
 ├── apps/
 │   ├── api/          # NestJS GraphQL API
-│   ├── web/          # Next.js Presentation Layer
-│   └── mobile/       # Expo/React Native Presentation Layer
+│   └── web/          # Next.js Presentation Layer
 ├── packages/
 │   ├── domain/       # Shared Domain Layer (Entities + Interfaces)
 │   ├── application/  # Shared Application Layer (Use Cases + Hooks)
@@ -75,7 +73,7 @@ pnpm install
 
 ### Development
 
-To start all applications (API, Web, Mobile) in development mode:
+To start all applications (API, Web) in development mode:
 
 ```bash
 pnpm dev
@@ -90,10 +88,10 @@ pnpm lint
 
 ### Testing
 
-The project uses a **hybrid testing strategy**:
+The project uses **Vitest** for testing:
 
 - **Vitest** for packages (`domain`, `application`, `infrastructure`) and `web`
-- **Jest** for `mobile` (React Native) and `api` (NestJS)
+- **Jest** for `api` (NestJS)
 
 ```bash
 # Run all tests

@@ -8,8 +8,3 @@ export const API_CONFIG = {
   graphqlEndpoint:
     process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/graphql',
 };
-
-export const MOBILE_API_CONFIG = {
-  graphqlEndpoint:
-    process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000/graphql',
-};

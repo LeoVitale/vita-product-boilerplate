@@ -2,18 +2,18 @@
 
 ## Purpose
 
-Explain **what this boilerplate is optimizing for** and how the architecture is organized so Web and Mobile can share the same business logic safely.
+Explain **what this boilerplate is optimizing for** and how the architecture is organized to maintain clean separation of concerns.
 
 ## When to use
 
 - You want a production-grade reference for **Clean Architecture + SOLID** in a TypeScript monorepo.
-- You want **Web and Mobile** to be thin UI shells while sharing domain rules and use-cases.
-- You want a codebase that scales in complexity without turning into “hooks everywhere” spaghetti.
+- You want a thin UI shell while centralizing domain rules and use-cases in shared packages.
+- You want a codebase that scales in complexity without turning into "hooks everywhere" spaghetti.
 
 ## What this repo is
 
 - A **Turborepo + pnpm workspaces** monorepo.
-- A **GraphQL** API (`apps/api`) consumed by Web (`apps/web`) and Mobile (`apps/mobile`).
+- A **GraphQL** API (`apps/api`) consumed by Web (`apps/web`).
 - A shared, layered architecture in `packages/`:
   - `@repo/domain`: entities + contracts + Result type
   - `@repo/application`: use cases + shared hooks that orchestrate use cases
@@ -30,7 +30,6 @@ Explain **what this boilerplate is optimizing for** and how the architecture is 
 ```mermaid
 graph LR
   Web["Apps / Web (UI)"] --> App["@repo/application"]
-  Mobile["Apps / Mobile (UI)"] --> App
   App --> Domain["@repo/domain"]
   Infra["@repo/infrastructure"] --> Domain
   App --> Infra

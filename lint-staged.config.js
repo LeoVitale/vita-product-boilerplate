@@ -39,7 +39,7 @@ module.exports = {
 
     // Only run eslint for packages that have eslint.config.mjs
     return Object.entries(byPkg)
-      .filter(([pkg]) => !['graphql'].includes(pkg))
+      .filter(([pkg]) => !['graphql', 'config'].includes(pkg))
       .map(
         ([pkg, files]) =>
           `eslint --fix --config packages/${pkg}/eslint.config.mjs ${files.join(' ')}`,
