@@ -1,7 +1,9 @@
 module.exports = {
   'apps/**/*.{ts,tsx}': (filenames) => {
     // Filter out prisma config files (they're outside tsconfig scope)
-    const filtered = filenames.filter((f) => !f.includes('/prisma/'));
+    const filtered = filenames.filter(
+      (f) => !f.includes('/prisma/') && !f.includes('prisma.config.ts'),
+    );
     if (filtered.length === 0) return [];
 
     // Group files by app to run eslint with correct config
