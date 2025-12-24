@@ -1,37 +1,36 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Task } from '@repo/domain';
-import { IGetTasksUseCase } from '../use-cases/get-tasks.use-case';
+import { useQuery } from '@apollo/client';
+import { GetTasksDocument } from '@repo/graphql';
+import { TaskSchema } from '@repo/domain';
 
-export function useGetTasks(useCase: IGetTasksUseCase) {
-  const [data, setData] = useState<Task[] | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState<Error | undefined>(undefined);
+/**
+ * Hook to fetch tasks using Apollo Client
+ * 
+ * This hook uses Apollo's useQuery with cache-and-network policy:
+ * - Returns cached data immediately (if available)
+ * - Fetches fresh data in the background
+ * - Automatically handles loading, error, and refetch states
+ * 
+ * @returns Object with data, loading state, error state, and refetch function
+ */
+export function useGetTasks() {
+  const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
+    fetchPolicy: 'cache-and-network',
+  });
 
-  const fetchTasks = useCallback(async () => {
-    setIsLoading(true);
-    setIsError(false);
-
-    const result = await useCase.execute();
-
-    if (result.ok) {
-      setData(result.value);
-    } else {
-      setIsError(true);
-      setError(result.error);
-    }
-    setIsLoading(false);
-  }, [useCase]);
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+  // Map and validate with Zod
+  const tasks = data?.tasks?.map((t: any) =>
+    TaskSchema.parse({
+      id: t.id,
+      title: t.title,
+      completed: t.completed,
+    })
+  );
 
   return {
-    data,
-    isLoading,
-    isError,
+    data: tasks,
+    isLoading: loading,
+    isError: !!error,
     error,
-    refetch: fetchTasks,
+    refetch,
   };
 }
