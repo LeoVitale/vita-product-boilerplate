@@ -34,7 +34,9 @@ describe('TaskSchema', () => {
     // assert
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].path).toContain('title');
+      const issue = result.error.issues[0];
+      expect(issue).toBeDefined();
+      expect(issue?.path).toContain('title');
     }
   });
 
@@ -66,7 +68,9 @@ describe('TaskSchema', () => {
     // assert
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].path).toContain('id');
+      const issue = result.error.issues[0];
+      expect(issue).toBeDefined();
+      expect(issue?.path).toContain('id');
     }
   });
 
