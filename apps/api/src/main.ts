@@ -1,9 +1,31 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { getLocalIP } from '@repo/config/network';
+import { networkInterfaces } from 'node:os';
 
 const PORT = process.env.PORT ?? 4000;
+
+/**
+ * Get the local IP address for network access
+ * Returns the first non-internal IPv4 address found
+ */
+function getLocalIP(): string | null {
+  const interfaces = networkInterfaces();
+
+  for (const name of Object.keys(interfaces)) {
+    const nets = interfaces[name];
+    if (!nets) continue;
+
+    for (const net of nets) {
+      // Skip internal (loopback) and non-IPv4 addresses
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+
+  return null;
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,7 +36,6 @@ async function bootstrap() {
   // Listen on all network interfaces (0.0.0.0) to allow mobile device access
   await app.listen(PORT, '0.0.0.0');
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
   const localIP = getLocalIP();
 
   console.log(`Application is running on: ${await app.getUrl()}`);
