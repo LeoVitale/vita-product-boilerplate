@@ -28,30 +28,29 @@ npx expo start
 
 ### Configure API endpoint
 
-Create a `.env` file based on your environment:
+#### Auto-detect IP (Recommended)
 
-#### WSL2 with mirrored networking
-
-```bash
-# .env
-EXPO_PUBLIC_API_HOST=192.168.15.8    # Your Windows IP on the network
-EXPO_PUBLIC_API_PORT=4000
-```
-
-Then run with your host IP:
+The easiest way to configure the API endpoint is to use the auto-detection script:
 
 ```bash
-REACT_NATIVE_PACKAGER_HOSTNAME=192.168.15.8 pnpm dev
+pnpm setup:env
 ```
 
-**Note**: You need to configure Windows Firewall to allow ports 4000 and 8081:
+This will automatically detect your machine's local IP address and update the `.env` file. Perfect for environments with dynamic IPs!
 
-```powershell
-netsh advfirewall firewall add rule name="WSL API" dir=in action=allow protocol=TCP localport=4000
-netsh advfirewall firewall add rule name="WSL Expo" dir=in action=allow protocol=TCP localport=8081
+Then start the app:
+
+```bash
+pnpm dev
 ```
 
-#### Mac (local development)
+The `dev` script automatically runs `setup:env` before starting, so you don't need to run it manually.
+
+#### Manual Configuration
+
+If you prefer to set it manually, create a `.env` file:
+
+**For iOS Simulator (Mac):**
 
 ```bash
 # .env
@@ -59,11 +58,28 @@ EXPO_PUBLIC_API_HOST=localhost
 EXPO_PUBLIC_API_PORT=4000
 ```
 
-Then simply run:
+**For physical devices or different networks:**
 
 ```bash
-pnpm dev
+# .env
+EXPO_PUBLIC_API_HOST=192.168.15.7  # Your machine's IP address
+EXPO_PUBLIC_API_PORT=4000
 ```
+
+**For tunnels (ngrok, cloudflared, etc.):**
+
+```bash
+# .env
+EXPO_PUBLIC_API_URL=https://your-tunnel-url.ngrok.io/graphql
+```
+
+#### Multi-Environment Setup
+
+If you work in multiple environments (home, office, etc.):
+
+1. **Auto-detect (recommended)**: Just run `pnpm dev` - it will auto-detect your IP
+2. **Environment-specific files**: Create `.env.home`, `.env.office`, etc., and copy the appropriate one to `.env` before starting
+3. **Use a tunnel**: Set up a stable tunnel URL that works regardless of your local IP
 
 #### Environment Variables Reference
 
@@ -108,11 +124,21 @@ This app consumes the following shared packages:
 ## Scripts
 
 ```bash
-pnpm dev          # Start with LAN mode (for local network testing)
+pnpm setup:env    # Auto-detect and configure API host IP (uses shared script)
+pnpm dev          # Start with LAN mode (auto-detects IP, then starts Expo)
 pnpm dev:tunnel   # Start with tunnel (works anywhere, no network config needed)
 pnpm start        # Start bundler (default mode)
 pnpm lint         # Run ESLint
 pnpm check-types  # TypeScript check
+```
+
+**Note**: The `setup:env` script uses the shared script at `scripts/setup-mobile-env.js` in the monorepo root. You can also run it directly:
+
+```bash
+# From monorepo root
+pnpm scripts:setup-mobile
+# Or directly
+node scripts/setup-mobile-env.js
 ```
 
 ## Troubleshooting

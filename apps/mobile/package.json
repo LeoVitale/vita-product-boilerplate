@@ -4,9 +4,10 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "start": "dotenv -- sh -c 'expo start --port ${EXPO_METRO_PORT:-8081}'",
-    "dev": "dotenv -- sh -c 'expo start --lan --port ${EXPO_METRO_PORT:-8081}'",
+    "setup:env": "node ../../scripts/setup-mobile-env.js",
+    "dev": "pnpm setup:env && dotenv -- sh -c 'expo start --lan --port ${EXPO_METRO_PORT:-8081}'",
     "dev:tunnel": "dotenv -- sh -c 'expo start --tunnel --port ${EXPO_METRO_PORT:-8081}'",
+    "start": "dotenv -- sh -c 'expo start --port ${EXPO_METRO_PORT:-8081}'",
     "android": "dotenv -- sh -c 'expo start --android --port ${EXPO_METRO_PORT:-8081}'",
     "ios": "dotenv -- sh -c 'expo start --ios --port ${EXPO_METRO_PORT:-8081}'",
     "web": "dotenv -- sh -c 'expo start --web --port ${EXPO_METRO_PORT:-8081}'",

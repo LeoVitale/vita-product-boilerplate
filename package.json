@@ -25,7 +25,9 @@
     "release:first": "standard-version --first-release",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f"
+    "docker:logs": "docker compose logs -f",
+    "scripts:get-ip": "node scripts/get-local-ip.js",
+    "scripts:setup-mobile": "node scripts/setup-mobile-env.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
