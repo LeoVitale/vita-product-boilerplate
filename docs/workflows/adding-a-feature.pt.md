@@ -43,11 +43,11 @@ Construa de dentro para fora:
 ### 5) Application: factory para o use case
 
 - Crie uma factory function em `packages/application/src/factories/`.
-- A factory recebe dependencias (ex: `ApolloClient`) e retorna o use case pronto.
+- A factory recebe uma **interface de repositório** (não infraestrutura) e retorna o use case pronto.
+- Isso mantém a Application Layer pura e agnóstica de infraestrutura.
 - Exemplo:
   ```typescript
-  export function createGetTasksUseCase(client: ApolloClient) {
-    const repository = new ApolloTaskRepository(client);
+  export function createGetTasksUseCase(repository: TaskRepositoryInterface) {
     return new GetTasksUseCase(repository);
   }
   ```
@@ -76,16 +76,21 @@ Construa de dentro para fora:
 
 ### 7) Apps: composition root (provider)
 
-- Adicione o novo use case ao `UseCasesProvider` usando a factory.
+- Este é o **verdadeiro Composition Root** - crie repositórios e conecte use cases aqui.
+- O Provider cria implementações de infraestrutura e passa para as factories.
 - Exemplo:
+
   ```typescript
-  const useCases = useMemo(
-    () => ({
-      getTasksUseCase: createGetTasksUseCase(client),
+  const useCases = useMemo(() => {
+    // Cria implementações de infraestrutura
+    const taskRepository = new ApolloTaskRepository(client);
+
+    // Conecta use cases
+    return {
+      getTasksUseCase: createGetTasksUseCase(taskRepository),
       // adicione aqui novos use cases
-    }),
-    [client],
-  );
+    };
+  }, [client]);
   ```
 
 ### 8) UI: renderizar

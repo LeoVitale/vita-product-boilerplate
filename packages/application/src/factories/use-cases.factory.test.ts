@@ -1,46 +1,47 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { createGetTasksUseCase } from './use-cases.factory';
+import { TaskRepositoryInterface, success } from '@repo/domain';
+
+/**
+ * Creates a mock repository for testing
+ */
+function createMockRepository(
+  overrides?: Partial<TaskRepositoryInterface>,
+): TaskRepositoryInterface {
+  return {
+    findAll: vi.fn().mockResolvedValue(success([])),
+    ...overrides,
+  };
+}
 
 describe('UseCases Factory', () => {
-  it('given_apollo_client_when_create_get_tasks_use_case_then_returns_instance', () => {
+  it('given_repository_when_create_get_tasks_use_case_then_returns_instance', () => {
     // arrange
-    const client = new ApolloClient({
-      cache: new InMemoryCache(),
-      link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
-    });
+    const repository = createMockRepository();
 
     // act
-    const useCase = createGetTasksUseCase(client);
+    const useCase = createGetTasksUseCase(repository);
 
     // assert
     expect(useCase).toBeDefined();
     expect(useCase.execute).toBeInstanceOf(Function);
   });
 
-  it('given_apollo_client_when_create_use_case_then_injects_repository', async () => {
+  it('given_repository_when_execute_use_case_then_calls_repository', async () => {
     // arrange
-    const client = new ApolloClient({
-      cache: new InMemoryCache(),
-      link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
-    });
-
-    // Mock the query method to return empty tasks
-    const mockQuery = vi.fn().mockResolvedValue({
-      data: { tasks: [] },
-    });
-    client.query = mockQuery;
+    const mockTasks = [{ id: '1', title: 'Test Task', completed: false }];
+    const findAllMock = vi.fn().mockResolvedValue(success(mockTasks));
+    const repository = createMockRepository({ findAll: findAllMock });
 
     // act
-    const useCase = createGetTasksUseCase(client);
+    const useCase = createGetTasksUseCase(repository);
     const result = await useCase.execute();
 
-    // assert - verify repository was injected and use case works
+    // assert - verify repository was called and use case works
     expect(result.ok).toBe(true);
-    expect(mockQuery).toHaveBeenCalled();
+    expect(findAllMock).toHaveBeenCalled();
     if (result.ok) {
-      expect(Array.isArray(result.value)).toBe(true);
-      expect(result.value).toHaveLength(0);
+      expect(result.value).toEqual(mockTasks);
     }
   });
 });

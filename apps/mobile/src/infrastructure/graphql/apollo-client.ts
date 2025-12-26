@@ -1,9 +1,13 @@
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 
-// In Expo, use EXPO_PUBLIC_API_URL or fallback to localhost
-// For physical device testing, use your machine's IP address
+// Environment-based configuration for multi-environment support (WSL, Mac, etc.)
+// Configure via .env file - see .env.example for documentation
+const API_HOST = process.env.EXPO_PUBLIC_API_HOST ?? 'localhost';
+const API_PORT = process.env.EXPO_PUBLIC_API_PORT ?? '4000';
+
+// Allow full URL override for special cases (e.g., ngrok tunnel)
 const GRAPHQL_ENDPOINT =
-  process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000/graphql';
+  process.env.EXPO_PUBLIC_API_URL ?? `http://${API_HOST}:${API_PORT}/graphql`;
 
 export const apolloClient = new ApolloClient({
   link: new HttpLink({
@@ -11,4 +15,3 @@ export const apolloClient = new ApolloClient({
   }),
   cache: new InMemoryCache(),
 });
-

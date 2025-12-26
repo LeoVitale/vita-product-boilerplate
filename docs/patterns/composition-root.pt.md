@@ -44,33 +44,42 @@ function TaskList() {
 
 ## Como Funciona no Projeto
 
-### 1. Factory (Composition Root)
+### 1. Factory (Application Layer)
+
+A factory recebe uma **interface de repositório**, não uma implementação de infraestrutura.
+Isso mantém a Application Layer pura e agnóstica de infraestrutura.
 
 ```typescript
 // packages/application/src/factories/use-cases.factory.ts
-import { ApolloClient } from '@apollo/client';
-import { ApolloTaskRepository } from '@repo/infrastructure';
+import { TaskRepositoryInterface } from '@repo/domain';
 import { GetTasksUseCase } from '../use-cases/get-tasks.use-case';
 
-export function createGetTasksUseCase(client: ApolloClient<any>) {
-  const repository = new ApolloTaskRepository(client);
+export function createGetTasksUseCase(repository: TaskRepositoryInterface) {
   return new GetTasksUseCase(repository);
 }
 ```
 
-### 2. Provider (React Context)
+### 2. Provider (Verdadeiro Composition Root)
+
+O **Provider** é o verdadeiro Composition Root - ele cria as implementações de infraestrutura
+e injeta nos use cases.
 
 ```typescript
 // apps/web/src/providers/UseCasesProvider.tsx
+import { ApolloTaskRepository } from '@repo/infrastructure';
+
 export function UseCasesProvider({ children }) {
   const client = useApolloClient();
 
-  const useCases = useMemo(
-    () => ({
-      getTasksUseCase: createGetTasksUseCase(client),
-    }),
-    [client]
-  );
+  const useCases = useMemo(() => {
+    // Cria implementações de infraestrutura
+    const taskRepository = new ApolloTaskRepository(client);
+
+    // Conecta use cases com repositórios
+    return {
+      getTasksUseCase: createGetTasksUseCase(taskRepository),
+    };
+  }, [client]);
 
   return (
     <UseCasesContext.Provider value={useCases}>
@@ -108,11 +117,14 @@ function Home() {
 ```mermaid
 graph TD
     App[App Root] --> Provider[UseCasesProvider]
+    Provider --> Repo[new ApolloTaskRepository]
     Provider --> Factory[createGetTasksUseCase]
-    Factory --> Repo[new ApolloTaskRepository]
     Factory --> UseCase[new GetTasksUseCase]
     UseCase --> Component[Component]
 ```
+
+> **Nota**: O Provider cria o repositório (infraestrutura) e passa para a factory.
+> A factory só orquestra - ela não conhece implementações concretas.
 
 ## Quando Usar
 
@@ -135,21 +147,26 @@ graph TD
 ### 1. Testabilidade
 
 ```typescript
-// Teste: injetar mock facilmente
-const mockClient = createMockApolloClient();
-const useCase = createGetTasksUseCase(mockClient);
+// Teste: injetar mock repository facilmente
+const mockRepository: TaskRepositoryInterface = {
+  findAll: vi.fn().mockResolvedValue(success([{ id: '1', title: 'Test' }])),
+};
+const useCase = createGetTasksUseCase(mockRepository);
 ```
 
 ### 2. Flexibilidade
 
 ```typescript
-// Trocar implementação em um único lugar
-export function createGetTasksUseCase(client: ApolloClient) {
+// Trocar implementação no Provider (Composition Root)
+const useCases = useMemo(() => {
   // Antes: ApolloTaskRepository
   // Depois: RestTaskRepository
-  const repository = new RestTaskRepository(axiosClient);
-  return new GetTasksUseCase(repository);
-}
+  const taskRepository = new RestTaskRepository(axiosClient);
+
+  return {
+    getTasksUseCase: createGetTasksUseCase(taskRepository),
+  };
+}, [axiosClient]);
 ```
 
 ### 3. DRY (Don't Repeat Yourself)
@@ -218,16 +235,16 @@ export function UseCasesProvider({ children }) {
 ### ✅ Provider só monta dependências
 
 ```typescript
-// Bom: provider só cria instâncias
+// Bom: provider cria repositórios e conecta use cases
 export function UseCasesProvider({ children }) {
   const client = useApolloClient();
 
-  const useCases = useMemo(
-    () => ({
-      getTasksUseCase: createGetTasksUseCase(client),
-    }),
-    [client]
-  );
+  const useCases = useMemo(() => {
+    const taskRepository = new ApolloTaskRepository(client);
+    return {
+      getTasksUseCase: createGetTasksUseCase(taskRepository),
+    };
+  }, [client]);
 
   return <Context.Provider value={useCases}>{children}</Context.Provider>;
 }

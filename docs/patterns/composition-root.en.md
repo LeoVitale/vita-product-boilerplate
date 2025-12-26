@@ -44,33 +44,42 @@ function TaskList() {
 
 ## How It Works in the Project
 
-### 1. Factory (Composition Root)
+### 1. Factory (Application Layer)
+
+The factory receives a **repository interface**, not an infrastructure implementation.
+This keeps the Application Layer pure and infrastructure-agnostic.
 
 ```typescript
 // packages/application/src/factories/use-cases.factory.ts
-import { ApolloClient } from '@apollo/client';
-import { ApolloTaskRepository } from '@repo/infrastructure';
+import { TaskRepositoryInterface } from '@repo/domain';
 import { GetTasksUseCase } from '../use-cases/get-tasks.use-case';
 
-export function createGetTasksUseCase(client: ApolloClient<any>) {
-  const repository = new ApolloTaskRepository(client);
+export function createGetTasksUseCase(repository: TaskRepositoryInterface) {
   return new GetTasksUseCase(repository);
 }
 ```
 
-### 2. Provider (React Context)
+### 2. Provider (True Composition Root)
+
+The **Provider** is the true Composition Root - it creates infrastructure implementations
+and injects them into use cases.
 
 ```typescript
 // apps/web/src/providers/UseCasesProvider.tsx
+import { ApolloTaskRepository } from '@repo/infrastructure';
+
 export function UseCasesProvider({ children }) {
   const client = useApolloClient();
 
-  const useCases = useMemo(
-    () => ({
-      getTasksUseCase: createGetTasksUseCase(client),
-    }),
-    [client]
-  );
+  const useCases = useMemo(() => {
+    // Create infrastructure implementations
+    const taskRepository = new ApolloTaskRepository(client);
+
+    // Wire up use cases with repositories
+    return {
+      getTasksUseCase: createGetTasksUseCase(taskRepository),
+    };
+  }, [client]);
 
   return (
     <UseCasesContext.Provider value={useCases}>
@@ -108,11 +117,14 @@ function Home() {
 ```mermaid
 graph TD
     App[App Root] --> Provider[UseCasesProvider]
+    Provider --> Repo[new ApolloTaskRepository]
     Provider --> Factory[createGetTasksUseCase]
-    Factory --> Repo[new ApolloTaskRepository]
     Factory --> UseCase[new GetTasksUseCase]
     UseCase --> Component[Component]
 ```
+
+> **Note**: The Provider creates the repository (infrastructure) and passes it to the factory.
+> The factory only orchestrates - it doesn't know about concrete implementations.
 
 ## When to Use
 
@@ -135,21 +147,26 @@ graph TD
 ### 1. Testability
 
 ```typescript
-// Test: inject mock easily
-const mockClient = createMockApolloClient();
-const useCase = createGetTasksUseCase(mockClient);
+// Test: inject mock repository easily
+const mockRepository: TaskRepositoryInterface = {
+  findAll: vi.fn().mockResolvedValue(success([{ id: '1', title: 'Test' }])),
+};
+const useCase = createGetTasksUseCase(mockRepository);
 ```
 
 ### 2. Flexibility
 
 ```typescript
-// Swap implementation in a single place
-export function createGetTasksUseCase(client: ApolloClient) {
+// Swap implementation in the Provider (Composition Root)
+const useCases = useMemo(() => {
   // Before: ApolloTaskRepository
   // After: RestTaskRepository
-  const repository = new RestTaskRepository(axiosClient);
-  return new GetTasksUseCase(repository);
-}
+  const taskRepository = new RestTaskRepository(axiosClient);
+
+  return {
+    getTasksUseCase: createGetTasksUseCase(taskRepository),
+  };
+}, [axiosClient]);
 ```
 
 ### 3. DRY (Don't Repeat Yourself)
@@ -218,16 +235,16 @@ export function UseCasesProvider({ children }) {
 ### ✅ Provider only assembles dependencies
 
 ```typescript
-// Good: provider only creates instances
+// Good: provider creates repositories and wires up use cases
 export function UseCasesProvider({ children }) {
   const client = useApolloClient();
 
-  const useCases = useMemo(
-    () => ({
-      getTasksUseCase: createGetTasksUseCase(client),
-    }),
-    [client]
-  );
+  const useCases = useMemo(() => {
+    const taskRepository = new ApolloTaskRepository(client);
+    return {
+      getTasksUseCase: createGetTasksUseCase(taskRepository),
+    };
+  }, [client]);
 
   return <Context.Provider value={useCases}>{children}</Context.Provider>;
 }

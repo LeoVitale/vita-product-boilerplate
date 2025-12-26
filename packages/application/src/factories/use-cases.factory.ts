@@ -1,5 +1,4 @@
-import { ApolloClient } from '@apollo/client';
-import { ApolloTaskRepository } from '@repo/infrastructure';
+import { TaskRepositoryInterface } from '@repo/domain';
 import {
   GetTasksUseCase,
   IGetTasksUseCase,
@@ -8,15 +7,15 @@ import {
 /**
  * Factory function to create GetTasksUseCase with injected dependencies
  *
- * This is the composition root for the GetTasks feature.
- * It wires up the repository implementation with the use case.
+ * This factory follows Clean Architecture by depending only on the domain interface,
+ * not on infrastructure implementations. The actual repository is created in the
+ * Composition Root (apps).
  *
- * @param client - Apollo Client instance (accepts any ApolloClient instance)
+ * @param repository - TaskRepositoryInterface implementation
  * @returns Configured GetTasksUseCase instance
  */
 export function createGetTasksUseCase(
-  client: ApolloClient | unknown,
+  repository: TaskRepositoryInterface,
 ): IGetTasksUseCase {
-  const repository = new ApolloTaskRepository(client as ApolloClient);
   return new GetTasksUseCase(repository);
 }

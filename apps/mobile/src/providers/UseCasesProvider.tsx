@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, ReactNode } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { createGetTasksUseCase, IGetTasksUseCase } from '@repo/application';
+import { ApolloTaskRepository } from '@repo/infrastructure';
 
 interface UseCasesContextValue {
   getTasksUseCase: IGetTasksUseCase;
@@ -15,18 +16,22 @@ interface UseCasesProviderProps {
 /**
  * Composition Root Provider for Use Cases
  *
- * This provider centralizes dependency injection for all use cases.
- * It creates use case instances with properly injected repositories.
+ * This is the true Composition Root - it creates infrastructure implementations
+ * and injects them into use cases. The application layer remains pure and
+ * infrastructure-agnostic.
  */
 export function UseCasesProvider({ children }: UseCasesProviderProps) {
   const client = useApolloClient();
 
-  const useCases = useMemo(
-    () => ({
-      getTasksUseCase: createGetTasksUseCase(client),
-    }),
-    [client],
-  );
+  const useCases = useMemo(() => {
+    // Create infrastructure implementations
+    const taskRepository = new ApolloTaskRepository(client);
+
+    // Wire up use cases with repositories
+    return {
+      getTasksUseCase: createGetTasksUseCase(taskRepository),
+    };
+  }, [client]);
 
   return (
     <UseCasesContext.Provider value={useCases}>

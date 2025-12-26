@@ -28,15 +28,51 @@ npx expo start
 
 ### Configure API endpoint
 
-For physical device testing, create a `.env` file:
+Create a `.env` file based on your environment:
+
+#### WSL2 with mirrored networking
 
 ```bash
-# Get your machine's IP
-hostname -I | awk '{print $1}'
-
-# Create .env
-echo "EXPO_PUBLIC_API_URL=http://YOUR_IP:4000/graphql" > .env
+# .env
+EXPO_PUBLIC_API_HOST=192.168.15.8    # Your Windows IP on the network
+EXPO_PUBLIC_API_PORT=8000
 ```
+
+Then run with your host IP:
+
+```bash
+REACT_NATIVE_PACKAGER_HOSTNAME=192.168.15.8 pnpm dev
+```
+
+**Note**: You need to configure Windows Firewall to allow ports 8000 and 8081:
+
+```powershell
+netsh advfirewall firewall add rule name="WSL API" dir=in action=allow protocol=TCP localport=8000
+netsh advfirewall firewall add rule name="WSL Expo" dir=in action=allow protocol=TCP localport=8081
+```
+
+#### Mac (local development)
+
+```bash
+# .env
+EXPO_PUBLIC_API_HOST=localhost
+EXPO_PUBLIC_API_PORT=8000
+```
+
+Then simply run:
+
+```bash
+pnpm dev
+```
+
+#### Environment Variables Reference
+
+| Variable                         | Description                        | Default     |
+| -------------------------------- | ---------------------------------- | ----------- |
+| `EXPO_PUBLIC_API_HOST`           | GraphQL API host                   | `localhost` |
+| `EXPO_PUBLIC_API_PORT`           | GraphQL API port                   | `8000`      |
+| `EXPO_PUBLIC_API_URL`            | Full API URL (overrides host/port) | -           |
+| `REACT_NATIVE_PACKAGER_HOSTNAME` | Host announced by Metro bundler    | auto-detect |
 
 ## Project Structure
 
@@ -71,8 +107,9 @@ This app consumes the following shared packages:
 ## Scripts
 
 ```bash
-pnpm dev          # Start with tunnel
-pnpm start        # Start bundler
+pnpm dev          # Start with LAN mode (for local network testing)
+pnpm dev:tunnel   # Start with tunnel (works anywhere, no network config needed)
+pnpm start        # Start bundler (default mode)
 pnpm lint         # Run ESLint
 pnpm check-types  # TypeScript check
 ```
@@ -89,8 +126,28 @@ npx expo start --tunnel --clear
 
 ### Network request failed
 
-The API endpoint defaults to `localhost:4000`, which doesn't work on physical devices. Configure the `.env` file with your machine's IP address.
+The API endpoint defaults to `localhost:8000`, which doesn't work on physical devices. Configure the `.env` file with your machine's IP address.
 
 ### WSL2 networking
 
-If using WSL2, you may need to expose the API port to the Windows host or use ngrok.
+If using WSL2 with **mirrored networking**:
+
+1. Configure `.wslconfig` in `C:\Users\YOUR_USER\.wslconfig`:
+
+```ini
+[wsl2]
+networkingMode=mirrored
+```
+
+2. Restart WSL: `wsl --shutdown`
+
+3. Add Windows Firewall rules (PowerShell as Admin):
+
+```powershell
+netsh advfirewall firewall add rule name="WSL API" dir=in action=allow protocol=TCP localport=8000
+netsh advfirewall firewall add rule name="WSL Expo" dir=in action=allow protocol=TCP localport=8081
+```
+
+4. Set your `.env` with your network IP and run with `REACT_NATIVE_PACKAGER_HOSTNAME`.
+
+**Alternative**: Use `pnpm dev:tunnel` which works without any network configuration.

@@ -1,3 +1,15 @@
+const fs = require('fs');
+const path = require('path');
+
+// Helper to find eslint config file (supports both .mjs and .js)
+function findEslintConfig(dir) {
+  const mjsPath = path.join(dir, 'eslint.config.mjs');
+  const jsPath = path.join(dir, 'eslint.config.js');
+  if (fs.existsSync(mjsPath)) return mjsPath;
+  if (fs.existsSync(jsPath)) return jsPath;
+  return null;
+}
+
 module.exports = {
   'apps/**/*.{ts,tsx}': (filenames) => {
     // Filter out prisma config files (they're outside tsconfig scope)
@@ -17,10 +29,13 @@ module.exports = {
       }
     });
 
-    return Object.entries(byApp).map(
-      ([app, files]) =>
-        `eslint --fix --config apps/${app}/eslint.config.mjs ${files.join(' ')}`,
-    );
+    return Object.entries(byApp)
+      .map(([app, files]) => {
+        const configPath = findEslintConfig(`apps/${app}`);
+        if (!configPath) return null;
+        return `eslint --fix --config ${configPath} ${files.join(' ')}`;
+      })
+      .filter(Boolean);
   },
   'packages/**/*.{ts,tsx}': (filenames) => {
     // Filter out generated files (they don't need linting)
@@ -37,15 +52,14 @@ module.exports = {
       }
     });
 
-    // Only run eslint for packages that have eslint.config.mjs
-    // Excluded: graphql (generated), config (tooling), application, infrastructure, domain (no eslint config)
-    const pkgsWithoutEslint = ['graphql', 'config', 'application', 'infrastructure', 'domain'];
+    // Only run eslint for packages that have eslint config
     return Object.entries(byPkg)
-      .filter(([pkg]) => !pkgsWithoutEslint.includes(pkg))
-      .map(
-        ([pkg, files]) =>
-          `eslint --fix --config packages/${pkg}/eslint.config.mjs ${files.join(' ')}`,
-      );
+      .map(([pkg, files]) => {
+        const configPath = findEslintConfig(`packages/${pkg}`);
+        if (!configPath) return null;
+        return `eslint --fix --config ${configPath} ${files.join(' ')}`;
+      })
+      .filter(Boolean);
   },
   'apps/**/*.{js,jsx}': (filenames) => {
     if (filenames.length === 0) return [];
@@ -60,10 +74,13 @@ module.exports = {
       }
     });
 
-    return Object.entries(byApp).map(
-      ([app, files]) =>
-        `eslint --fix --config apps/${app}/eslint.config.mjs ${files.join(' ')}`,
-    );
+    return Object.entries(byApp)
+      .map(([app, files]) => {
+        const configPath = findEslintConfig(`apps/${app}`);
+        if (!configPath) return null;
+        return `eslint --fix --config ${configPath} ${files.join(' ')}`;
+      })
+      .filter(Boolean);
   },
   'packages/**/*.{js,jsx}': (filenames) => {
     if (filenames.length === 0) return [];
@@ -78,10 +95,13 @@ module.exports = {
       }
     });
 
-    return Object.entries(byPkg).map(
-      ([pkg, files]) =>
-        `eslint --fix --config packages/${pkg}/eslint.config.mjs ${files.join(' ')}`,
-    );
+    return Object.entries(byPkg)
+      .map(([pkg, files]) => {
+        const configPath = findEslintConfig(`packages/${pkg}`);
+        if (!configPath) return null;
+        return `eslint --fix --config ${configPath} ${files.join(' ')}`;
+      })
+      .filter(Boolean);
   },
   '*.{json,md,yml,yaml}': ['prettier --write'],
   '*.css': ['prettier --write'],
