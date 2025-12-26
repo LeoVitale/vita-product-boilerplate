@@ -5,13 +5,29 @@
   "type": "module",
   "exports": {
     ".": "./package.json",
-    "./env": "./src/env.ts",
-    "./network": "./src/network.ts",
+    "./env": {
+      "types": "./src/env.ts",
+      "default": "./src/env.ts"
+    },
+    "./network": {
+      "types": "./src/network.ts",
+      "default": "./src/network.ts"
+    },
     "./typescript/*": "./typescript/*",
     "./eslint/*": "./eslint/*.js",
     "./eslint/*.js": "./eslint/*.js",
     "./eslint/*.mjs": "./eslint/*.mjs",
     "./prettier": "./prettier/base.json"
+  },
+  "typesVersions": {
+    "*": {
+      "env": [
+        "./src/env.ts"
+      ],
+      "network": [
+        "./src/network.ts"
+      ]
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
