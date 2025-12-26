@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { getLocalIP } from '@repo/config/src/network';
+import { getLocalIP } from '@repo/config/network';
 
 const PORT = process.env.PORT ?? 4000;
 
@@ -14,6 +14,7 @@ async function bootstrap() {
   // Listen on all network interfaces (0.0.0.0) to allow mobile device access
   await app.listen(PORT, '0.0.0.0');
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
   const localIP = getLocalIP();
 
   console.log(`Application is running on: ${await app.getUrl()}`);
