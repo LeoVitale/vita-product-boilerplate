@@ -35,7 +35,7 @@ Create a `.env` file based on your environment:
 ```bash
 # .env
 EXPO_PUBLIC_API_HOST=192.168.15.8    # Your Windows IP on the network
-EXPO_PUBLIC_API_PORT=8000
+EXPO_PUBLIC_API_PORT=4000
 ```
 
 Then run with your host IP:
@@ -44,10 +44,10 @@ Then run with your host IP:
 REACT_NATIVE_PACKAGER_HOSTNAME=192.168.15.8 pnpm dev
 ```
 
-**Note**: You need to configure Windows Firewall to allow ports 8000 and 8081:
+**Note**: You need to configure Windows Firewall to allow ports 4000 and 8081:
 
 ```powershell
-netsh advfirewall firewall add rule name="WSL API" dir=in action=allow protocol=TCP localport=8000
+netsh advfirewall firewall add rule name="WSL API" dir=in action=allow protocol=TCP localport=4000
 netsh advfirewall firewall add rule name="WSL Expo" dir=in action=allow protocol=TCP localport=8081
 ```
 
@@ -56,7 +56,7 @@ netsh advfirewall firewall add rule name="WSL Expo" dir=in action=allow protocol
 ```bash
 # .env
 EXPO_PUBLIC_API_HOST=localhost
-EXPO_PUBLIC_API_PORT=8000
+EXPO_PUBLIC_API_PORT=4000
 ```
 
 Then simply run:
@@ -70,7 +70,7 @@ pnpm dev
 | Variable                         | Description                        | Default     |
 | -------------------------------- | ---------------------------------- | ----------- |
 | `EXPO_PUBLIC_API_HOST`           | GraphQL API host                   | `localhost` |
-| `EXPO_PUBLIC_API_PORT`           | GraphQL API port                   | `8000`      |
+| `EXPO_PUBLIC_API_PORT`           | GraphQL API port                   | `4000`      |
 | `EXPO_PUBLIC_API_URL`            | Full API URL (overrides host/port) | -           |
 | `REACT_NATIVE_PACKAGER_HOSTNAME` | Host announced by Metro bundler    | auto-detect |
 
@@ -126,7 +126,7 @@ npx expo start --tunnel --clear
 
 ### Network request failed
 
-The API endpoint defaults to `localhost:8000`, which doesn't work on physical devices. Configure the `.env` file with your machine's IP address.
+The API endpoint defaults to `localhost:4000`, which doesn't work on physical devices. Configure the `.env` file with your machine's IP address.
 
 ### WSL2 networking
 
@@ -144,7 +144,7 @@ networkingMode=mirrored
 3. Add Windows Firewall rules (PowerShell as Admin):
 
 ```powershell
-netsh advfirewall firewall add rule name="WSL API" dir=in action=allow protocol=TCP localport=8000
+netsh advfirewall firewall add rule name="WSL API" dir=in action=allow protocol=TCP localport=4000
 netsh advfirewall firewall add rule name="WSL Expo" dir=in action=allow protocol=TCP localport=8081
 ```
 

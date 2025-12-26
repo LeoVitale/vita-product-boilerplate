@@ -15,14 +15,14 @@
  */
 export const API_CONFIG = {
   graphqlEndpoint:
-    process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/graphql',
+    process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/graphql',
 };
 
 /**
  * Server Configuration (used by API)
  */
 export const SERVER_CONFIG = {
-  port: Number(process.env.PORT ?? 8000),
+  port: Number(process.env.PORT ?? 4000),
   databaseUrl: process.env.DATABASE_URL ?? '',
 };
 
