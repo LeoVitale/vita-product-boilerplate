@@ -1,36 +1,61 @@
-import { useQuery } from '@apollo/client/react';
-import { GetTasksDocument } from '@repo/graphql';
-import { TaskSchema } from '@repo/domain';
+'use client';
+
+import { createContext, useContext } from 'react';
+import { TasksQueryInterface, TasksQueryResult } from '@repo/domain';
 
 /**
- * Hook to fetch tasks using Apollo Client
+ * Context for injecting the tasks query implementation
  *
- * This hook uses Apollo's useQuery with cache-and-network policy:
- * - Returns cached data immediately (if available)
- * - Fetches fresh data in the background
- * - Automatically handles loading, error, and refetch states
- *
- * @returns Object with data, loading state, error state, and refetch function
+ * This context enables the application layer to remain agnostic
+ * of the underlying data fetching strategy. The concrete implementation
+ * (Apollo, React Query, mock, etc.) is injected at the composition root.
  */
-export function useGetTasks() {
-  const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
-    fetchPolicy: 'cache-and-network',
-  });
+const TasksQueryContext = createContext<TasksQueryInterface | null>(null);
 
-  // Map and validate with Zod
-  const tasks = data?.tasks?.map((t: any) =>
-    TaskSchema.parse({
-      id: t.id,
-      title: t.title,
-      completed: t.completed,
-    }),
-  );
+/**
+ * Provider component for tasks query implementation
+ *
+ * Use this at the composition root to inject the concrete implementation:
+ *
+ * @example
+ * ```tsx
+ * import { useApolloTasksQuery } from '@repo/infrastructure';
+ *
+ * <TasksQueryProvider value={useApolloTasksQuery}>
+ *   <App />
+ * </TasksQueryProvider>
+ * ```
+ */
+export const TasksQueryProvider = TasksQueryContext.Provider;
 
-  return {
-    data: tasks,
-    isLoading: loading,
-    isError: !!error,
-    error,
-    refetch,
-  };
+/**
+ * Hook to fetch tasks using the injected query implementation
+ *
+ * This hook provides a clean interface for fetching tasks while remaining
+ * agnostic of the underlying implementation. The actual data fetching
+ * strategy is determined by the TasksQueryProvider at the composition root.
+ *
+ * @returns TasksQueryResult with data, loading/error states, and refetch function
+ * @throws Error if used outside of TasksQueryProvider
+ *
+ * @example
+ * ```tsx
+ * function TaskList() {
+ *   const { data: tasks, isLoading, isError } = useGetTasks();
+ *
+ *   if (isLoading) return <Loading />;
+ *   if (isError) return <Error />;
+ *
+ *   return <ul>{tasks?.map(t => <li key={t.id}>{t.title}</li>)}</ul>;
+ * }
+ * ```
+ */
+export function useGetTasks(): TasksQueryResult {
+  const query = useContext(TasksQueryContext);
+
+  if (!query) {
+    throw new Error('useGetTasks must be used within TasksQueryProvider');
+  }
+
+  return query();
 }
