@@ -2,8 +2,15 @@
 
 import { createContext, useContext, useMemo, ReactNode } from 'react';
 import { useApolloClient } from '@apollo/client/react';
-import { createGetTasksUseCase, IGetTasksUseCase } from '@repo/application';
-import { ApolloTaskRepository } from '@repo/infrastructure';
+import {
+  createGetTasksUseCase,
+  IGetTasksUseCase,
+  TasksQueryProvider,
+} from '@repo/application';
+import {
+  ApolloTaskRepository,
+  useApolloTasksQuery,
+} from '@repo/infrastructure';
 
 interface UseCasesContextValue {
   getTasksUseCase: IGetTasksUseCase;
@@ -16,15 +23,22 @@ interface UseCasesProviderProps {
 }
 
 /**
- * Composition Root Provider for Use Cases
+ * Composition Root Provider for Use Cases and Query Implementations
  *
- * This is the true Composition Root - it creates infrastructure implementations
- * and injects them into use cases. The application layer remains pure and
- * infrastructure-agnostic.
+ * This is the true Composition Root - it:
+ * 1. Creates infrastructure implementations
+ * 2. Injects them into use cases
+ * 3. Provides the Apollo-based query implementation for hooks
+ *
+ * The application layer remains pure and infrastructure-agnostic.
  *
  * Usage:
  * ```tsx
+ * // For use cases
  * const { getTasksUseCase } = useUseCases();
+ *
+ * // For hooks (using injected Apollo implementation)
+ * const { data, isLoading } = useGetTasks();
  * ```
  */
 export function UseCasesProvider({ children }: UseCasesProviderProps) {
@@ -42,7 +56,9 @@ export function UseCasesProvider({ children }: UseCasesProviderProps) {
 
   return (
     <UseCasesContext.Provider value={useCases}>
-      {children}
+      <TasksQueryProvider value={useApolloTasksQuery}>
+        {children}
+      </TasksQueryProvider>
     </UseCasesContext.Provider>
   );
 }
