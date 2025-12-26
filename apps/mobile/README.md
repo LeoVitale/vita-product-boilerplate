@@ -69,6 +69,7 @@ pnpm dev
 
 | Variable                         | Description                        | Default     |
 | -------------------------------- | ---------------------------------- | ----------- |
+| `EXPO_METRO_PORT`                | Metro bundler port                 | `8081`      |
 | `EXPO_PUBLIC_API_HOST`           | GraphQL API host                   | `localhost` |
 | `EXPO_PUBLIC_API_PORT`           | GraphQL API port                   | `4000`      |
 | `EXPO_PUBLIC_API_URL`            | Full API URL (overrides host/port) | -           |

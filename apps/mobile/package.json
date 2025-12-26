@@ -4,12 +4,12 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
-    "dev": "expo start --lan",
-    "dev:tunnel": "expo start --tunnel",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
+    "start": "dotenv -- sh -c 'expo start --port ${EXPO_METRO_PORT:-8081}'",
+    "dev": "dotenv -- sh -c 'expo start --lan --port ${EXPO_METRO_PORT:-8081}'",
+    "dev:tunnel": "dotenv -- sh -c 'expo start --tunnel --port ${EXPO_METRO_PORT:-8081}'",
+    "android": "dotenv -- sh -c 'expo start --android --port ${EXPO_METRO_PORT:-8081}'",
+    "ios": "dotenv -- sh -c 'expo start --ios --port ${EXPO_METRO_PORT:-8081}'",
+    "web": "dotenv -- sh -c 'expo start --web --port ${EXPO_METRO_PORT:-8081}'",
     "lint": "eslint --max-warnings 0",
     "check-types": "tsc --noEmit",
     "test": "echo \"No tests configured yet\""
@@ -32,6 +32,7 @@
   "devDependencies": {
     "@repo/config": "workspace:*",
     "@types/react": "~19.1.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.2",
     "typescript": "~5.9.2"
   }
