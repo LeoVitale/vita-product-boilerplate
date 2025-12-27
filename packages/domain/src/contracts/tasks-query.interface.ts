@@ -15,12 +15,9 @@ export interface TasksQueryResult {
 }
 
 /**
- * Abstract interface for tasks query hook
+ * Function type for tasks query hook
  *
- * This interface allows the application layer to remain agnostic
+ * This type allows the application layer to remain agnostic
  * of the underlying data fetching implementation (Apollo, React Query, etc.)
  */
-export interface TasksQueryInterface {
-  (): TasksQueryResult;
-}
-
+export type TasksQueryInterface = () => TasksQueryResult;
