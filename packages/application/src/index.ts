@@ -1,10 +1,16 @@
+/**
+ * Application Layer - Public API
+ *
+ * This is the main entry point for the application package.
+ * All public use cases, hooks, and factories are re-exported from here.
+ *
+ * Structure:
+ * - features/tasks - Task feature slice
+ * - shared - Cross-cutting utilities
+ */
+
 // Features
-export * from './features/tasks/hooks/use-get-tasks';
-export * from './features/tasks/hooks/use-create-task';
-export * from './features/tasks/hooks/use-toggle-task';
-export * from './features/tasks/hooks/use-delete-task';
-export * from './features/tasks/use-cases/get-tasks.use-case';
-export * from './features/tasks/use-cases/create-task.use-case';
-export * from './features/tasks/use-cases/toggle-task.use-case';
-export * from './features/tasks/use-cases/delete-task.use-case';
-export * from './features/tasks/factories/use-cases.factory';
+export * from './features/tasks';
+
+// Shared (currently empty, prepared for future)
+// export * from './shared';
