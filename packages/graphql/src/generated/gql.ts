@@ -14,10 +14,10 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "query GetTasks {\n  tasks {\n    id\n    title\n    completed\n  }\n}": typeof types.GetTasksDocument,
+    "query GetTasks {\n  tasks {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation CreateTask($title: String!, $description: String) {\n  createTask(title: $title, description: $description) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation ToggleTaskComplete($id: ID!) {\n  toggleTaskComplete(id: $id) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation DeleteTask($id: ID!) {\n  deleteTask(id: $id) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}": typeof types.GetTasksDocument,
 };
 const documents: Documents = {
-    "query GetTasks {\n  tasks {\n    id\n    title\n    completed\n  }\n}": types.GetTasksDocument,
+    "query GetTasks {\n  tasks {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation CreateTask($title: String!, $description: String) {\n  createTask(title: $title, description: $description) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation ToggleTaskComplete($id: ID!) {\n  toggleTaskComplete(id: $id) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation DeleteTask($id: ID!) {\n  deleteTask(id: $id) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}": types.GetTasksDocument,
 };
 
 /**
@@ -37,7 +37,7 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "query GetTasks {\n  tasks {\n    id\n    title\n    completed\n  }\n}"): (typeof documents)["query GetTasks {\n  tasks {\n    id\n    title\n    completed\n  }\n}"];
+export function gql(source: "query GetTasks {\n  tasks {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation CreateTask($title: String!, $description: String) {\n  createTask(title: $title, description: $description) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation ToggleTaskComplete($id: ID!) {\n  toggleTaskComplete(id: $id) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation DeleteTask($id: ID!) {\n  deleteTask(id: $id) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}"): (typeof documents)["query GetTasks {\n  tasks {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation CreateTask($title: String!, $description: String) {\n  createTask(title: $title, description: $description) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation ToggleTaskComplete($id: ID!) {\n  toggleTaskComplete(id: $id) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}\n\nmutation DeleteTask($id: ID!) {\n  deleteTask(id: $id) {\n    id\n    title\n    description\n    completed\n    createdAt\n    updatedAt\n  }\n}"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

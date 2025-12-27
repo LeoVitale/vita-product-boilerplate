@@ -2,6 +2,42 @@ query GetTasks {
   tasks {
     id
     title
+    description
     completed
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateTask($title: String!, $description: String) {
+  createTask(title: $title, description: $description) {
+    id
+    title
+    description
+    completed
+    createdAt
+    updatedAt
+  }
+}
+
+mutation ToggleTaskComplete($id: ID!) {
+  toggleTaskComplete(id: $id) {
+    id
+    title
+    description
+    completed
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteTask($id: ID!) {
+  deleteTask(id: $id) {
+    id
+    title
+    description
+    completed
+    createdAt
+    updatedAt
   }
 }
