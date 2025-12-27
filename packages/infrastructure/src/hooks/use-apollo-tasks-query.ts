@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client/react';
 import { GetTasksDocument } from '@repo/graphql';
-import { TaskSchema, TasksQueryResult } from '@repo/domain';
+import { TasksQueryResult } from '@repo/domain';
+import { TaskMapper } from '../mappers/task.mapper';
 
 /**
  * Apollo Client implementation of TasksQueryInterface
@@ -11,7 +12,7 @@ import { TaskSchema, TasksQueryResult } from '@repo/domain';
  * Features:
  * - Returns cached data immediately (if available)
  * - Fetches fresh data in the background
- * - Validates data with Zod schema
+ * - Validates data with Zod schema via TaskMapper
  * - Implements TasksQueryResult interface for consistency
  *
  * @returns TasksQueryResult with tasks data, loading/error states, and refetch function
@@ -21,14 +22,8 @@ export function useApolloTasksQuery(): TasksQueryResult {
     fetchPolicy: 'cache-and-network',
   });
 
-  // Map and validate with Zod at the infrastructure boundary
-  const tasks = data?.tasks?.map((t) =>
-    TaskSchema.parse({
-      id: t.id,
-      title: t.title,
-      completed: t.completed,
-    }),
-  );
+  // Map and validate using centralized TaskMapper
+  const tasks = data?.tasks ? TaskMapper.toDomainList(data.tasks) : undefined;
 
   return {
     data: tasks,
@@ -40,4 +35,3 @@ export function useApolloTasksQuery(): TasksQueryResult {
     },
   };
 }
-
