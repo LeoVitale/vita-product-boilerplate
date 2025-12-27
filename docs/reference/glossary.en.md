@@ -22,3 +22,8 @@ Align vocabulary so the repo is approachable regardless of seniority.
 - **TDD**: Test-Driven Development (Red → Green → Refactor).
 - **Unit test**: fast test of a small piece (domain/use case) with fakes.
 - **Contract test**: ensures an implementation matches an interface contract.
+- **Feature-Sliced Design (FSD)**: architectural methodology focusing on feature isolation and public APIs.
+- **Feature**: a self-contained slice of functionality (e.g., tasks, auth, subscriptions).
+- **Public API**: controlled exports from a module via index.ts (barrel file).
+- **Barrel file**: an index.ts that re-exports public members of a module.
+- **Shared module**: cross-cutting utilities used by multiple features.
