@@ -1,110 +1,208 @@
-# Criando uma Feature (PT)
+# Adicionando uma Feature (PT)
 
-## Proposito
+## Propósito
 
-Fornecer um workflow repetivel para criar features de forma **profissional e segura** seguindo Clean Architecture.
+Fornecer um workflow repetível para adicionar features **profissionalmente e com segurança** sob Feature-Based Clean Architecture.
 
 ## Quando usar
 
-Use este checklist sempre que voce adicionar uma nova capacidade (nova entidade, novo use case, nova integracao).
+Use este checklist sempre que adicionar uma nova capacidade de negócio (nova entidade, novo use case, nova integração).
 
-## Regra de ouro
+## Quick Start
+
+Use o script gerador de features:
+
+```bash
+./scripts/generate-feature.sh auth
+# Cria packages/{domain,application,infrastructure}/src/features/auth/
+```
+
+## A regra de ouro
 
 Construa de dentro para fora:
 
 1. Domain (entidades + contratos)
-2. Application (use cases + orquestracao via hooks)
-3. Infrastructure (implementacoes + mappers)
+2. Application (use cases + orquestração de hooks)
+3. Infrastructure (implementações + mappers)
 4. Apps (composition root + UI)
 
 ## Passo a passo
 
-### 1) Domain: entidade + invariantes (Zod)
+### 1) Gerar estrutura da feature
 
-- Defina schema e type via `z.infer`.
-- Mantenha a entidade com shape do dominio, nao da API.
+```bash
+./scripts/generate-feature.sh <nome-da-feature>
+```
 
-### 2) Domain: interface(s) de repositorio
+Isso cria:
 
-- Defina o contrato minimo que o use case precisa.
-- Retorne `Result` nos metodos.
+- `packages/domain/src/features/<feature>/`
+- `packages/application/src/features/<feature>/`
+- `packages/infrastructure/src/features/<feature>/`
 
-### 3) Application: use case (puro)
+### 2) Domain: entidade + invariantes (Zod)
 
-- Injete interfaces de repositorio no construtor.
-- Retorne `Result` para quem chamou.
-- Nao importe Apollo/GraphQL.
+Local: `packages/domain/src/features/<feature>/entities/`
 
-### 4) Infrastructure: implementacao do repositorio
+- Defina schema e tipo usando `z.infer`.
+- Mantenha entidades no formato do domínio, não da API.
+
+```typescript
+// packages/domain/src/features/auth/entities/user.ts
+import { z } from 'zod';
+
+export const UserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  name: z.string().min(2),
+  createdAt: z.coerce.date(),
+});
+
+export type User = z.infer<typeof UserSchema>;
+```
+
+### 3) Domain: interface(s) de repositório
+
+Local: `packages/domain/src/features/<feature>/repositories/`
+
+- Defina o contrato mínimo que seu use case precisa.
+- Retorne `Result` dos métodos.
+
+```typescript
+// packages/domain/src/features/auth/repositories/auth-repository.interface.ts
+import { Result } from '../../../shared/core/result';
+import { User } from '../entities/user';
+import { DomainError } from '../../../shared/errors/domain-errors';
+
+export interface AuthRepositoryInterface {
+  getCurrentUser(): Promise<Result<User | null, DomainError>>;
+  login(email: string, password: string): Promise<Result<User, DomainError>>;
+  logout(): Promise<Result<void, DomainError>>;
+}
+```
+
+### 4) Domain: atualizar API pública
+
+Local: `packages/domain/src/features/<feature>/index.ts`
+
+```typescript
+export * from './entities';
+export type { AuthRepositoryInterface } from './repositories';
+```
+
+### 5) Application: use case (puro)
+
+Local: `packages/application/src/features/<feature>/use-cases/`
+
+- Injete interfaces de repositório via construtor.
+- Retorne `Result` para o chamador.
+- Não importe Apollo/GraphQL.
+
+```typescript
+// packages/application/src/features/auth/use-cases/login.use-case.ts
+import {
+  AuthRepositoryInterface,
+  User,
+  Result,
+  DomainError,
+} from '@repo/domain';
+
+export interface ILoginUseCase {
+  execute(email: string, password: string): Promise<Result<User, DomainError>>;
+}
+
+export class LoginUseCase implements ILoginUseCase {
+  constructor(private readonly authRepo: AuthRepositoryInterface) {}
+
+  async execute(
+    email: string,
+    password: string,
+  ): Promise<Result<User, DomainError>> {
+    return this.authRepo.login(email, password);
+  }
+}
+```
+
+### 6) Application: factory para o use case
+
+Local: `packages/application/src/features/<feature>/factories/`
+
+```typescript
+// packages/application/src/features/auth/factories/use-cases.factory.ts
+import { AuthRepositoryInterface } from '@repo/domain';
+import { LoginUseCase } from '../use-cases/login.use-case';
+
+export function createAuthUseCases(repository: AuthRepositoryInterface) {
+  return {
+    loginUseCase: new LoginUseCase(repository),
+  };
+}
+```
+
+### 7) Application: hooks com DI
+
+Local: `packages/application/src/features/<feature>/hooks/`
+
+```typescript
+// packages/application/src/features/auth/hooks/use-login.ts
+import { createContext, useContext } from 'react';
+import { LoginMutationInterface } from '@repo/domain';
+
+const LoginMutationContext = createContext<LoginMutationInterface | null>(null);
+
+export const LoginMutationProvider = LoginMutationContext.Provider;
+
+export function useLogin() {
+  const loginMutation = useContext(LoginMutationContext);
+  if (!loginMutation) {
+    throw new Error('useLogin must be used within LoginMutationProvider');
+  }
+  return loginMutation();
+}
+```
+
+### 8) Infrastructure: implementação do repositório
+
+Local: `packages/infrastructure/src/features/<feature>/repositories/`
 
 - Chame Apollo/HTTP/storage.
-- Mapeie dado externo para entidade do dominio usando schemas Zod.
+- Mapeie dados externos para entidades de domínio usando schemas Zod.
 
-### 5) Application: factory para o use case
+### 9) Apps: composition root (provider)
 
-- Crie uma factory function em `packages/application/src/factories/`.
-- A factory recebe uma **interface de repositório** (não infraestrutura) e retorna o use case pronto.
-- Isso mantém a Application Layer pura e agnóstica de infraestrutura.
-- Exemplo:
-  ```typescript
-  export function createGetTasksUseCase(repository: TaskRepositoryInterface) {
-    return new GetTasksUseCase(repository);
-  }
-  ```
+Local: `apps/web/src/providers/UseCasesProvider.tsx`
 
-### 6) Application: hook compartilhado
+```typescript
+// Adicione ao UseCasesProvider.tsx
+import { ApolloAuthRepository, useApolloLogin } from '@repo/infrastructure';
+import { createAuthUseCases, LoginMutationProvider } from '@repo/application';
 
-- Use Apollo `useQuery` diretamente com `fetchPolicy: 'cache-and-network'`.
-- Valide dados com Zod antes de retornar.
-- Exponha interface padrao: `{ data, isLoading, isError, error, refetch }`.
-- Exemplo:
-  ```typescript
-  export function useGetTasks() {
-    const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
-      fetchPolicy: 'cache-and-network',
-    });
-    const tasks = data?.tasks?.map((t) => TaskSchema.parse(t));
-    return {
-      data: tasks,
-      isLoading: loading,
-      isError: !!error,
-      error,
-      refetch,
-    };
-  }
-  ```
+// No useMemo:
+const authRepository = new ApolloAuthRepository(client as GraphQLClient);
+const authUseCases = createAuthUseCases(authRepository);
 
-### 7) Apps: composition root (provider)
+// No JSX:
+<LoginMutationProvider value={useApolloLogin}>
+  {children}
+</LoginMutationProvider>
+```
 
-- Este é o **verdadeiro Composition Root** - crie repositórios e conecte use cases aqui.
-- O Provider cria implementações de infraestrutura e passa para as factories.
-- Exemplo:
+### 10) UI: renderização
 
-  ```typescript
-  const useCases = useMemo(() => {
-    // Cria implementações de infraestrutura
-    const taskRepository = new ApolloTaskRepository(client);
+- Componentes/telas renderizam baseado no output do hook.
+- Hooks vêm de `@repo/application` (não crie localmente).
+- Mantenha lógica de UI na UI; mantenha regras de negócio nos use cases.
 
-    // Conecta use cases
-    return {
-      getTasksUseCase: createGetTasksUseCase(taskRepository),
-      // adicione aqui novos use cases
-    };
-  }, [client]);
-  ```
+## Critérios de conclusão
 
-### 8) UI: renderizar
-
-- Componentes/telas renderizam com base no hook.
-- Hooks vem de `@repo/application` (nao crie localmente).
-- Regra de negocio fica no use case; UI fica na UI.
-
-## Critetrios de pronto
-
-- Todo o codigo novo segue a direcao de dependencias (`docs/architecture/dependency-flow.pt.md`).
-- Mapping/validacao acontece no boundary (infrastructure).
-- Nao existe nova regra de negocio em componentes de `apps/*`.
+- Todo código da nova feature segue a direção de dependência.
+- Mapeamento/validação acontece nas fronteiras (infrastructure).
+- Sem nova lógica de negócio em componentes `apps/*`.
+- Exports da API pública atualizados em todas as camadas.
 
 ## Links
 
+- [Arquitetura Feature-Based](../architecture/feature-based.pt.md)
+- [Padrão de API Pública](../patterns/public-api.pt.md)
 - Clean Architecture: `https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html`
+- Feature-Sliced Design: `https://feature-sliced.design/`

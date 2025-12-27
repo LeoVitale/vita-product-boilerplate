@@ -14,12 +14,14 @@ Explain **what this boilerplate is optimizing for** and how the architecture is 
 
 - A **Turborepo + pnpm workspaces** monorepo.
 - A **GraphQL** API (`apps/api`) consumed by Web (`apps/web`) and Mobile (`apps/mobile`).
-- A shared, layered architecture in `packages/`:
-  - `@repo/domain`: entities + contracts + Result type
+- A shared, **feature-based** layered architecture in `packages/`:
+  - `@repo/domain`: entities + contracts + Result type + domain errors
   - `@repo/application`: use cases + shared hooks that orchestrate use cases
   - `@repo/infrastructure`: concrete implementations (Apollo repositories, mappers)
   - `@repo/graphql`: generated GraphQL types/documents (codegen)
   - `@repo/ui`: shared UI primitives (web only)
+
+Each package is organized by **features** (e.g., `tasks`, `auth`) with a `shared` folder for cross-cutting concerns. See [Feature-Based Architecture](./feature-based.en.md) for details.
 
 ## Core idea (in one sentence)
 
@@ -46,4 +48,5 @@ graph LR
 
 - **Clean Architecture**: `https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html`
 - **SOLID**: `https://en.wikipedia.org/wiki/SOLID`
+- **Feature-Sliced Design**: `https://feature-sliced.design/`
 - **Turborepo**: `https://turborepo.com/docs`

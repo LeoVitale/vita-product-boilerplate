@@ -8,9 +8,11 @@ Se voce e novo no repositorio, siga este caminho:
 
 1. **Visao geral da arquitetura**
    - [Visao Geral](./architecture/overview.pt.md)
+   - [Arquitetura Feature-Based](./architecture/feature-based.pt.md) ⭐ NEW
    - [Camadas](./architecture/layers.pt.md)
    - [Fluxo de Dependencias](./architecture/dependency-flow.pt.md)
 2. **Patterns principais (por que fazemos assim)**
+   - [Padrao de API Publica](./patterns/public-api.pt.md) ⭐ NEW
    - [Result Pattern](./patterns/result-pattern.pt.md)
    - [Zod no Dominio](./patterns/zod-domain.pt.md)
    - [Injecao de Dependencia](./patterns/dependency-injection.pt.md)

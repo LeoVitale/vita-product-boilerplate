@@ -42,20 +42,40 @@ graph LR
 
 ## 📦 Project Structure
 
+This project uses a **Feature-Based Architecture** combining Clean Architecture with Feature-Sliced Design.
+
 ```text
 .
 ├── apps/
-│   ├── api/          # NestJS GraphQL API
-│   ├── mobile/       # Expo React Native App
-│   └── web/          # Next.js Presentation Layer
+│   ├── api/              # NestJS GraphQL API
+│   ├── mobile/           # Expo React Native App
+│   └── web/              # Next.js Presentation Layer
 ├── packages/
-│   ├── domain/       # Shared Domain Layer (Entities + Interfaces)
-│   ├── application/  # Shared Application Layer (Use Cases + Hooks)
-│   ├── infrastructure/# Shared Infrastructure Layer (Apollo Repositories)
-│   ├── graphql/      # Shared GraphQL types/codegen
-│   ├── ui/           # Shared UI Components
-│   └── config/       # Shared ESLint, Prettier, and TS configs
-└── .cursor/rules/    # Cursor IDE architecture enforcement rules
+│   ├── domain/src/
+│   │   ├── features/     # Feature slices (tasks, auth, etc.)
+│   │   │   └── tasks/    # Task feature domain
+│   │   └── shared/       # Cross-cutting (Result, Errors)
+│   ├── application/src/
+│   │   ├── features/     # Feature slices
+│   │   │   └── tasks/    # Task feature (use cases, hooks)
+│   │   └── shared/       # Cross-feature utilities
+│   ├── infrastructure/src/
+│   │   ├── features/     # Feature slices
+│   │   │   └── tasks/    # Task feature (Apollo repos, mappers)
+│   │   └── shared/       # Shared infra (Apollo config)
+│   ├── graphql/          # Shared GraphQL types/codegen
+│   ├── ui/               # Shared UI Components
+│   └── config/           # Shared ESLint, Prettier, and TS configs
+├── scripts/
+│   └── generate-feature.sh  # Feature generator script
+└── .cursor/rules/        # Cursor IDE architecture enforcement rules
+```
+
+### Adding a New Feature
+
+```bash
+./scripts/generate-feature.sh auth
+# Creates packages/{domain,application,infrastructure}/src/features/auth/
 ```
 
 ---
@@ -126,9 +146,13 @@ pnpm generate
 - **Start here (EN)**: [`docs/README.en.md`](./docs/README.en.md)
 - **Comece aqui (PT)**: [`docs/README.pt.md`](./docs/README.pt.md)
 - **Architecture**:
+  - [Feature-Based Architecture](./docs/architecture/feature-based.en.md) ⭐ NEW
+  - [Public API Pattern](./docs/patterns/public-api.en.md) ⭐ NEW
   - [Apollo Client](./docs/architecture/apollo-client.en.md)
   - [Composition Root Pattern](./docs/patterns/composition-root.en.md)
   - [Testing Setup](./docs/testing/setup.en.md)
+- **Workflows**:
+  - [Adding a Feature](./docs/workflows/adding-a-feature.en.md)
 - **Cursor rules (architecture + TDD)**: [`./.cursor/rules/`](./.cursor/rules/)
 - Turborepo: `https://turborepo.com/docs`
 

@@ -20,7 +20,7 @@ At boundaries you must:
 ## Minimal example (GraphQL → domain)
 
 ```ts
-// Infrastructure
+// Infrastructure - inline mapping
 const tasks = data.tasks.map((t) =>
   TaskSchema.parse({
     id: t.id,
@@ -28,6 +28,44 @@ const tasks = data.tasks.map((t) =>
     completed: t.completed,
   }),
 );
+```
+
+## Mapper class pattern
+
+For complex entities, use a dedicated mapper class:
+
+```ts
+// packages/infrastructure/src/features/tasks/mappers/task.mapper.ts
+import { Task, TaskSchema } from '@repo/domain';
+
+export class TaskMapper {
+  static toDomain(raw: unknown): Task {
+    return TaskSchema.parse(raw);
+  }
+
+  static toDomainList(rawList: unknown[]): Task[] {
+    return rawList.map((item) => TaskMapper.toDomain(item));
+  }
+
+  static toDomainSafe(raw: unknown): Result<Task, ValidationError> {
+    const parsed = TaskSchema.safeParse(raw);
+    if (!parsed.success) {
+      return failure(new ValidationError('Invalid task data'));
+    }
+    return success(parsed.data);
+  }
+}
+```
+
+Use in repository:
+
+```ts
+// ApolloTaskRepository
+async findAll(): Promise<Result<Task[], DomainError>> {
+  const { data } = await this.client.query({ query: GetTasksDocument });
+  const tasks = TaskMapper.toDomainList(data.tasks);
+  return success(tasks);
+}
 ```
 
 ## Why this matters
@@ -44,5 +82,6 @@ const tasks = data.tasks.map((t) =>
 
 ## Links
 
+- [Feature-Based Architecture](../architecture/feature-based.en.md) (where mappers live)
 - GraphQL Codegen: `https://the-guild.dev/graphql/codegen`
 - Zod: `https://zod.dev/`

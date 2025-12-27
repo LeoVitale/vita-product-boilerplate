@@ -41,4 +41,6 @@ const useCase = new GetTasksUseCase(repo);
 
 ## Links
 
-- Composition root: `https://blog.ploeh.dk/2011/07/28/CompositionRoot/`
+- [Composition Root](./composition-root.en.md)
+- [Feature-Based Architecture](../architecture/feature-based.en.md)
+- Mark Seemann - Composition Root: `https://blog.ploeh.dk/2011/07/28/CompositionRoot/`

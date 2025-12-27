@@ -50,40 +50,52 @@ A factory recebe uma **interface de repositório**, não uma implementação de 
 Isso mantém a Application Layer pura e agnóstica de infraestrutura.
 
 ```typescript
-// packages/application/src/factories/use-cases.factory.ts
+// packages/application/src/features/tasks/factories/use-cases.factory.ts
 import { TaskRepositoryInterface } from '@repo/domain';
 import { GetTasksUseCase } from '../use-cases/get-tasks.use-case';
 
-export function createGetTasksUseCase(repository: TaskRepositoryInterface) {
-  return new GetTasksUseCase(repository);
+export function createTaskUseCases(repository: TaskRepositoryInterface) {
+  return {
+    getTasksUseCase: new GetTasksUseCase(repository),
+    createTaskUseCase: new CreateTaskUseCase(repository),
+    toggleTaskUseCase: new ToggleTaskUseCase(repository),
+    deleteTaskUseCase: new DeleteTaskUseCase(repository),
+  };
 }
 ```
 
 ### 2. Provider (Verdadeiro Composition Root)
 
 O **Provider** é o verdadeiro Composition Root - ele cria as implementações de infraestrutura
-e injeta nos use cases.
+e injeta nos use cases. Ele também conecta **mutation hooks** via React Context providers.
 
 ```typescript
 // apps/web/src/providers/UseCasesProvider.tsx
-import { ApolloTaskRepository } from '@repo/infrastructure';
+import { ApolloTaskRepository, useApolloCreateTask, useApolloToggleTask, useApolloDeleteTask } from '@repo/infrastructure';
+import { createTaskUseCases, CreateTaskMutationProvider, ToggleTaskMutationProvider, DeleteTaskMutationProvider } from '@repo/application';
 
 export function UseCasesProvider({ children }) {
   const client = useApolloClient();
 
-  const useCases = useMemo(() => {
-    // Cria implementações de infraestrutura
-    const taskRepository = new ApolloTaskRepository(client);
-
-    // Conecta use cases com repositórios
+  const { taskUseCases, tasksQueryProvider } = useMemo(() => {
+    const taskRepository = new ApolloTaskRepository(client as GraphQLClient);
     return {
-      getTasksUseCase: createGetTasksUseCase(taskRepository),
+      taskUseCases: createTaskUseCases(taskRepository),
+      tasksQueryProvider: useApolloTasksQuery,
     };
   }, [client]);
 
   return (
-    <UseCasesContext.Provider value={useCases}>
-      {children}
+    <UseCasesContext.Provider value={{ ...taskUseCases }}>
+      <TasksQueryProvider value={tasksQueryProvider}>
+        <CreateTaskMutationProvider value={useApolloCreateTask}>
+          <ToggleTaskMutationProvider value={useApolloToggleTask}>
+            <DeleteTaskMutationProvider value={useApolloDeleteTask}>
+              {children}
+            </DeleteTaskMutationProvider>
+          </ToggleTaskMutationProvider>
+        </CreateTaskMutationProvider>
+      </TasksQueryProvider>
     </UseCasesContext.Provider>
   );
 }
@@ -249,6 +261,24 @@ export function UseCasesProvider({ children }) {
   return <Context.Provider value={useCases}>{children}</Context.Provider>;
 }
 ```
+
+## Estrutura Feature-Based
+
+Com arquitetura feature-based, factories e hooks são organizados por feature:
+
+```
+packages/application/src/features/tasks/
+├── factories/
+│   └── use-cases.factory.ts  # createTaskUseCases
+├── hooks/
+│   ├── use-get-tasks.ts      # TasksQueryProvider + useGetTasks
+│   ├── use-create-task.ts    # CreateTaskMutationProvider + useCreateTask
+│   └── ...
+└── use-cases/
+    └── get-tasks.use-case.ts
+```
+
+Veja [Arquitetura Feature-Based](../architecture/feature-based.pt.md) para a estrutura completa.
 
 ## Links
 

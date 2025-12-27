@@ -8,9 +8,11 @@ If you are new to the repo, follow this learning path:
 
 1. **Architecture overview**
    - [Architecture Overview](./architecture/overview.en.md)
+   - [Feature-Based Architecture](./architecture/feature-based.en.md) ⭐ NEW
    - [Layers](./architecture/layers.en.md)
    - [Dependency Flow](./architecture/dependency-flow.en.md)
 2. **Core patterns (why we do it this way)**
+   - [Public API Pattern](./patterns/public-api.en.md) ⭐ NEW
    - [Result Pattern](./patterns/result-pattern.en.md)
    - [Zod in the Domain](./patterns/zod-domain.en.md)
    - [Dependency Injection](./patterns/dependency-injection.en.md)
