@@ -1,0 +1,12 @@
+/**
+ * {{FeatureName}} Entities - Public API
+ */
+export {
+  {{FeatureName}}Schema,
+  type {{FeatureName}},
+  Create{{FeatureName}}InputSchema,
+  type Create{{FeatureName}}Input,
+  Update{{FeatureName}}InputSchema,
+  type Update{{FeatureName}}Input,
+} from './{{featureName}}';
+

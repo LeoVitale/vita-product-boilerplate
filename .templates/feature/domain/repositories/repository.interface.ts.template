@@ -1,0 +1,14 @@
+import { Result } from '../../../shared/core/result';
+import { {{FeatureName}}, Create{{FeatureName}}Input } from '../entities/{{featureName}}';
+import { DomainError } from '../../../shared/errors/domain-errors';
+
+/**
+ * {{FeatureName}} Repository Interface
+ */
+export interface {{FeatureName}}RepositoryInterface {
+  findAll(): Promise<Result<{{FeatureName}}[], DomainError>>;
+  findById(id: string): Promise<Result<{{FeatureName}} | null, DomainError>>;
+  create(input: Create{{FeatureName}}Input): Promise<Result<{{FeatureName}}, DomainError>>;
+  delete(id: string): Promise<Result<void, DomainError>>;
+}
+

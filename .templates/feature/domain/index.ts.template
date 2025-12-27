@@ -1,0 +1,17 @@
+/**
+ * {{FeatureName}} Feature - Domain Public API
+ */
+
+// Entities
+export {
+  {{FeatureName}}Schema,
+  type {{FeatureName}},
+  Create{{FeatureName}}InputSchema,
+  type Create{{FeatureName}}Input,
+  Update{{FeatureName}}InputSchema,
+  type Update{{FeatureName}}Input,
+} from './entities';
+
+// Repository Interface
+export type { {{FeatureName}}RepositoryInterface } from './repositories';
+

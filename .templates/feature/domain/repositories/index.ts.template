@@ -1,0 +1,5 @@
+/**
+ * {{FeatureName}} Repositories - Public API
+ */
+export type { {{FeatureName}}RepositoryInterface } from './{{featureName}}-repository.interface';
+

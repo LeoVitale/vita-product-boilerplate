@@ -1,0 +1,32 @@
+import { z } from 'zod';
+
+/**
+ * {{FeatureName}} Entity Schema
+ */
+export const {{FeatureName}}Schema = z.object({
+  id: z.string(),
+  // Add your fields here
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export type {{FeatureName}} = z.infer<typeof {{FeatureName}}Schema>;
+
+/**
+ * Input schema for creating a new {{featureName}}
+ */
+export const Create{{FeatureName}}InputSchema = z.object({
+  // Add your create fields here
+});
+
+export type Create{{FeatureName}}Input = z.infer<typeof Create{{FeatureName}}InputSchema>;
+
+/**
+ * Input schema for updating a {{featureName}}
+ */
+export const Update{{FeatureName}}InputSchema = z.object({
+  // Add your update fields here (all optional)
+});
+
+export type Update{{FeatureName}}Input = z.infer<typeof Update{{FeatureName}}InputSchema>;
+
