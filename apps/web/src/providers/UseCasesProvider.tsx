@@ -3,17 +3,34 @@
 import { createContext, useContext, useMemo, ReactNode } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import {
-  createGetTasksUseCase,
-  IGetTasksUseCase,
+  // Query Providers
   TasksQueryProvider,
+  // Mutation Providers
+  CreateTaskMutationProvider,
+  ToggleTaskMutationProvider,
+  DeleteTaskMutationProvider,
+  // Use Case Factories
+  createTaskUseCases,
+  // Use Case Interfaces
+  IGetTasksUseCase,
+  ICreateTaskUseCase,
+  IToggleTaskUseCase,
+  IDeleteTaskUseCase,
 } from '@repo/application';
 import {
   ApolloTaskRepository,
+  GraphQLClient,
   useApolloTasksQuery,
+  useApolloCreateTask,
+  useApolloToggleTask,
+  useApolloDeleteTask,
 } from '@repo/infrastructure';
 
 interface UseCasesContextValue {
   getTasksUseCase: IGetTasksUseCase;
+  createTaskUseCase: ICreateTaskUseCase;
+  toggleTaskUseCase: IToggleTaskUseCase;
+  deleteTaskUseCase: IDeleteTaskUseCase;
 }
 
 const UseCasesContext = createContext<UseCasesContextValue | null>(null);
@@ -23,22 +40,25 @@ interface UseCasesProviderProps {
 }
 
 /**
- * Composition Root Provider for Use Cases and Query Implementations
+ * Composition Root Provider for Use Cases and Query/Mutation Implementations
  *
  * This is the true Composition Root - it:
- * 1. Creates infrastructure implementations
+ * 1. Creates infrastructure implementations (Apollo Repository)
  * 2. Injects them into use cases
- * 3. Provides the Apollo-based query implementation for hooks
+ * 3. Provides Apollo-based query and mutation implementations for hooks
  *
  * The application layer remains pure and infrastructure-agnostic.
  *
  * Usage:
  * ```tsx
- * // For use cases
- * const { getTasksUseCase } = useUseCases();
+ * // For use cases (imperative)
+ * const { getTasksUseCase, createTaskUseCase } = useUseCases();
  *
- * // For hooks (using injected Apollo implementation)
+ * // For hooks (declarative, recommended for React)
  * const { data, isLoading } = useGetTasks();
+ * const { create, isLoading } = useCreateTask();
+ * const { toggle } = useToggleTask();
+ * const { remove } = useDeleteTask();
  * ```
  */
 export function UseCasesProvider({ children }: UseCasesProviderProps) {
@@ -46,18 +66,23 @@ export function UseCasesProvider({ children }: UseCasesProviderProps) {
 
   const useCases = useMemo(() => {
     // Create infrastructure implementations
-    const taskRepository = new ApolloTaskRepository(client);
+    // Cast Apollo Client to GraphQLClient interface for repository compatibility
+    const taskRepository = new ApolloTaskRepository(client as GraphQLClient);
 
-    // Wire up use cases with repositories
-    return {
-      getTasksUseCase: createGetTasksUseCase(taskRepository),
-    };
+    // Wire up all use cases with repositories
+    return createTaskUseCases(taskRepository);
   }, [client]);
 
   return (
     <UseCasesContext.Provider value={useCases}>
       <TasksQueryProvider value={useApolloTasksQuery}>
-        {children}
+        <CreateTaskMutationProvider value={useApolloCreateTask}>
+          <ToggleTaskMutationProvider value={useApolloToggleTask}>
+            <DeleteTaskMutationProvider value={useApolloDeleteTask}>
+              {children}
+            </DeleteTaskMutationProvider>
+          </ToggleTaskMutationProvider>
+        </CreateTaskMutationProvider>
       </TasksQueryProvider>
     </UseCasesContext.Provider>
   );
@@ -65,6 +90,9 @@ export function UseCasesProvider({ children }: UseCasesProviderProps) {
 
 /**
  * Hook to access use cases from context
+ *
+ * Use this hook when you need direct access to use cases for imperative operations.
+ * For most React components, prefer using the declarative hooks (useGetTasks, etc.)
  *
  * @throws Error if used outside UseCasesProvider
  */
