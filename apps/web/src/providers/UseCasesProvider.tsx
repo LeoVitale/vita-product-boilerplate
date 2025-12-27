@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useMemo, ReactNode } from 'react';
 import { useApolloClient } from '@apollo/client/react';
+
+// Application Layer - Tasks Feature
 import {
   // Query Providers
   TasksQueryProvider,
@@ -12,25 +14,62 @@ import {
   // Use Case Factories
   createTaskUseCases,
   // Use Case Interfaces
-  IGetTasksUseCase,
-  ICreateTaskUseCase,
-  IToggleTaskUseCase,
-  IDeleteTaskUseCase,
+  type IGetTasksUseCase,
+  type ICreateTaskUseCase,
+  type IToggleTaskUseCase,
+  type IDeleteTaskUseCase,
 } from '@repo/application';
+
+// Infrastructure Layer - Tasks Feature
 import {
   ApolloTaskRepository,
-  GraphQLClient,
+  type GraphQLClient,
   useApolloTasksQuery,
   useApolloCreateTask,
   useApolloToggleTask,
   useApolloDeleteTask,
 } from '@repo/infrastructure';
 
+/**
+ * =============================================================================
+ * COMPOSITION ROOT - Feature-Based Architecture
+ * =============================================================================
+ *
+ * This is the Composition Root for the web application.
+ * Here we wire up features by connecting:
+ *   - Infrastructure implementations (repositories, hooks)
+ *   - Application use cases
+ *   - React context providers
+ *
+ * ## Adding a New Feature (e.g., Auth)
+ *
+ * 1. Import from @repo/application:
+ *    - AuthQueryProvider, useAuth hooks
+ *    - createAuthUseCases factory
+ *
+ * 2. Import from @repo/infrastructure:
+ *    - ApolloAuthRepository
+ *    - useApolloAuth hooks
+ *
+ * 3. Add to UseCasesContextValue interface
+ *
+ * 4. Wire up in UseCasesProvider:
+ *    - Create repository instance
+ *    - Create use cases with createAuthUseCases(authRepository)
+ *    - Wrap children with AuthQueryProvider
+ *
+ * =============================================================================
+ */
+
 interface UseCasesContextValue {
+  // Tasks Feature
   getTasksUseCase: IGetTasksUseCase;
   createTaskUseCase: ICreateTaskUseCase;
   toggleTaskUseCase: IToggleTaskUseCase;
   deleteTaskUseCase: IDeleteTaskUseCase;
+  // Future features:
+  // authUseCase: IAuthUseCase;
+  // subscriptionUseCase: ISubscriptionUseCase;
 }
 
 const UseCasesContext = createContext<UseCasesContextValue | null>(null);
@@ -40,16 +79,16 @@ interface UseCasesProviderProps {
 }
 
 /**
- * Composition Root Provider for Use Cases and Query/Mutation Implementations
+ * Composition Root Provider
  *
- * This is the true Composition Root - it:
- * 1. Creates infrastructure implementations (Apollo Repository)
- * 2. Injects them into use cases
- * 3. Provides Apollo-based query and mutation implementations for hooks
+ * Wires up all features by:
+ * 1. Creating infrastructure implementations (Apollo repositories)
+ * 2. Injecting them into use cases via factories
+ * 3. Providing Apollo-based query/mutation implementations for hooks
  *
  * The application layer remains pure and infrastructure-agnostic.
  *
- * Usage:
+ * @example
  * ```tsx
  * // For use cases (imperative)
  * const { getTasksUseCase, createTaskUseCase } = useUseCases();
@@ -57,29 +96,41 @@ interface UseCasesProviderProps {
  * // For hooks (declarative, recommended for React)
  * const { data, isLoading } = useGetTasks();
  * const { create, isLoading } = useCreateTask();
- * const { toggle } = useToggleTask();
- * const { remove } = useDeleteTask();
  * ```
  */
 export function UseCasesProvider({ children }: UseCasesProviderProps) {
   const client = useApolloClient();
 
   const useCases = useMemo(() => {
-    // Create infrastructure implementations
-    // Cast Apollo Client to GraphQLClient interface for repository compatibility
+    // ==========================================================================
+    // Tasks Feature - Infrastructure Setup
+    // ==========================================================================
     const taskRepository = new ApolloTaskRepository(client as GraphQLClient);
+    const taskUseCases = createTaskUseCases(taskRepository);
 
-    // Wire up all use cases with repositories
-    return createTaskUseCases(taskRepository);
+    // ==========================================================================
+    // Future Features Example:
+    // ==========================================================================
+    // const authRepository = new ApolloAuthRepository(client as GraphQLClient);
+    // const authUseCases = createAuthUseCases(authRepository);
+
+    return {
+      ...taskUseCases,
+      // ...authUseCases,
+    };
   }, [client]);
 
   return (
     <UseCasesContext.Provider value={useCases}>
+      {/* Tasks Feature Providers */}
       <TasksQueryProvider value={useApolloTasksQuery}>
         <CreateTaskMutationProvider value={useApolloCreateTask}>
           <ToggleTaskMutationProvider value={useApolloToggleTask}>
             <DeleteTaskMutationProvider value={useApolloDeleteTask}>
+              {/* Future Feature Providers */}
+              {/* <AuthQueryProvider value={useApolloAuth}> */}
               {children}
+              {/* </AuthQueryProvider> */}
             </DeleteTaskMutationProvider>
           </ToggleTaskMutationProvider>
         </CreateTaskMutationProvider>
@@ -91,8 +142,8 @@ export function UseCasesProvider({ children }: UseCasesProviderProps) {
 /**
  * Hook to access use cases from context
  *
- * Use this hook when you need direct access to use cases for imperative operations.
- * For most React components, prefer using the declarative hooks (useGetTasks, etc.)
+ * Use for imperative operations. For most React components,
+ * prefer declarative hooks (useGetTasks, useCreateTask, etc.)
  *
  * @throws Error if used outside UseCasesProvider
  */

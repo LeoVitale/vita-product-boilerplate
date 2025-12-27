@@ -5,4 +5,3 @@ export {
   ApolloTaskRepository,
   type GraphQLClient,
 } from './apollo-task-repository';
-
