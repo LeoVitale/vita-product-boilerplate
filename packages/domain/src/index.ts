@@ -1,9 +1,16 @@
+/**
+ * Domain Layer - Public API
+ *
+ * This is the main entry point for the domain package.
+ * All public types, schemas, and interfaces are re-exported from here.
+ *
+ * Structure:
+ * - features/tasks - Task feature slice
+ * - shared - Cross-cutting utilities (Result, Errors)
+ */
+
 // Features
-export * from './features/tasks/entities/task';
-export * from './features/tasks/repositories/task-repository.interface';
-export * from './features/tasks/contracts/tasks-query.interface';
-export * from './features/tasks/contracts/task-mutations.interface';
+export * from './features/tasks';
 
 // Shared
-export * from './shared/core/result';
-export * from './shared/errors';
+export * from './shared';
