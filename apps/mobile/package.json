@@ -4,7 +4,7 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "setup:env": "node ../../scripts/setup-mobile-env.js",
+    "setup:env": "node ../../scripts/setup-mobile-env.cjs",
     "dev": "pnpm setup:env && dotenv -- sh -c 'expo start --lan --port ${EXPO_METRO_PORT:-8081}'",
     "dev:tunnel": "dotenv -- sh -c 'expo start --tunnel --port ${EXPO_METRO_PORT:-8081}'",
     "start": "dotenv -- sh -c 'expo start --port ${EXPO_METRO_PORT:-8081}'",
