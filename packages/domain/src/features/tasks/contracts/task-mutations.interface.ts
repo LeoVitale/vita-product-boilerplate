@@ -1,6 +1,6 @@
 import { Task, CreateTaskInput } from '../entities/task';
-import { Result } from '../core/result';
-import { DomainError } from '../errors/domain-errors';
+import { Result } from '../../../shared/core/result';
+import { DomainError } from '../../../shared/errors/domain-errors';
 
 /**
  * Result type for create task mutation
@@ -52,3 +52,4 @@ export type ToggleTaskMutationInterface = () => ToggleTaskMutationResult;
  * Function type for delete task mutation hook
  */
 export type DeleteTaskMutationInterface = () => DeleteTaskMutationResult;
+

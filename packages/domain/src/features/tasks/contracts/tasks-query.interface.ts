@@ -21,3 +21,4 @@ export interface TasksQueryResult {
  * of the underlying data fetching implementation (Apollo, React Query, etc.)
  */
 export type TasksQueryInterface = () => TasksQueryResult;
+

@@ -1,6 +1,6 @@
-import { Result } from '../core/result';
+import { Result } from '../../../shared/core/result';
 import { Task, CreateTaskInput } from '../entities/task';
-import { DomainError } from '../errors/domain-errors';
+import { DomainError } from '../../../shared/errors/domain-errors';
 
 /**
  * Task Repository Interface
@@ -35,3 +35,4 @@ export interface TaskRepositoryInterface {
    */
   delete(id: string): Promise<Result<Task, DomainError>>;
 }
+

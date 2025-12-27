@@ -1,6 +1,9 @@
-export * from './entities/task';
-export * from './core/result';
-export * from './errors';
-export * from './repositories/task-repository.interface';
-export * from './contracts/tasks-query.interface';
-export * from './contracts/task-mutations.interface';
+// Features
+export * from './features/tasks/entities/task';
+export * from './features/tasks/repositories/task-repository.interface';
+export * from './features/tasks/contracts/tasks-query.interface';
+export * from './features/tasks/contracts/task-mutations.interface';
+
+// Shared
+export * from './shared/core/result';
+export * from './shared/errors';

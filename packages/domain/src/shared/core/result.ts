@@ -11,4 +11,3 @@ export const failure = <E>(error: E): Result<never, E> => ({
   ok: false,
   error,
 });
-

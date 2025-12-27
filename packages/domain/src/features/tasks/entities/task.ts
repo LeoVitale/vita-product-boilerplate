@@ -38,3 +38,4 @@ export const UpdateTaskInputSchema = z.object({
 });
 
 export type UpdateTaskInput = z.infer<typeof UpdateTaskInputSchema>;
+
