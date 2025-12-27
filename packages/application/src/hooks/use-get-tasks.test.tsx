@@ -44,8 +44,22 @@ describe('useGetTasks', () => {
   it('given_provider_with_tasks_when_hook_called_then_returns_tasks', () => {
     // arrange
     const mockTasks = [
-      { id: '1', title: 'Task One', completed: false },
-      { id: '2', title: 'Task Two', completed: true },
+      {
+        id: '1',
+        title: 'Task One',
+        description: null,
+        completed: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: '2',
+        title: 'Task Two',
+        description: null,
+        completed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ];
     const mockQuery = createMockTasksQuery({ data: mockTasks });
 
