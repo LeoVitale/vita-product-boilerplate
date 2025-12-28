@@ -27,11 +27,11 @@
     "@repo/config": "workspace:*",
     "@testing-library/react": "^16.0.0",
     "@testing-library/react-hooks": "^8.0.1",
-    "@vitest/ui": "^2.0.0",
+    "@vitest/ui": "^4.0.0",
     "jsdom": "^25.0.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "typescript": "^5.9.3",
-    "vitest": "^2.0.0"
+    "vitest": "^4.0.0"
   }
 }
