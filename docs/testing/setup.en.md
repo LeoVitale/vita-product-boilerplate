@@ -19,11 +19,12 @@ Used in shared packages and web app:
 
 ### Jest
 
-Used in API app:
+Used in API and Mobile apps:
 
 - `apps/api` - NestJS tests (already configured)
+- `apps/mobile` - React Native/Expo tests with jest-expo preset
 
-**Why?** Jest is the established standard for NestJS.
+**Why?** Jest is the established standard for NestJS and React Native.
 
 ## How to Run Tests
 
@@ -47,6 +48,9 @@ pnpm --filter @repo/infrastructure test
 
 # Web
 pnpm --filter web test
+
+# Mobile
+pnpm --filter @repo/mobile test
 ```
 
 ### Run with UI (Vitest)
@@ -96,7 +100,32 @@ Each package/app has its own `vitest.config.ts` or `jest.config.js`:
 
 - **Domain/Infrastructure**: `environment: 'node'`
 - **Application/Web**: `environment: 'jsdom'` (for React hooks/components)
-- **API**: Jest (specific configuration)
+- **API**: Jest (NestJS configuration)
+- **Mobile**: Jest with `jest-expo` preset (React Native environment)
+
+## Mobile Testing Notes
+
+The mobile app uses Jest with `jest-expo` preset and `@testing-library/react-native`:
+
+### Key Considerations
+
+- **pnpm hoisting**: The `transformIgnorePatterns` in `jest.config.js` handles
+  the `.pnpm` folder structure
+- **Apollo Client**: Import `ApolloProvider` from `@apollo/client/react`
+  (not `@apollo/client`)
+- **Matchers**: Use `toBeOnTheScreen()` instead of `toBeInTheDocument()`
+
+### Example Test
+
+```tsx
+import { render, screen } from '@testing-library/react-native';
+import { TaskListScreen } from './TaskListScreen';
+
+it('shows loading state', () => {
+  render(<TaskListScreen />);
+  expect(screen.getByText('Loading...')).toBeOnTheScreen();
+});
+```
 
 ## When to Write Tests
 
@@ -113,3 +142,5 @@ See: [TDD Rules](./../workflows/tdd.en.md)
 - Vitest: https://vitest.dev/
 - Jest: https://jestjs.io/
 - Testing Library: https://testing-library.com/
+- React Native Testing Library: https://callstack.github.io/react-native-testing-library/
+- Jest Expo: https://docs.expo.dev/develop/unit-testing/
