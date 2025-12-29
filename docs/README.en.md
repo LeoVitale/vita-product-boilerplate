@@ -8,7 +8,8 @@ If you are new to the repo, follow this learning path:
 
 1. **Architecture overview**
    - [Architecture Overview](./architecture/overview.en.md)
-   - [Feature-Based Architecture](./architecture/feature-based.en.md) ⭐ NEW
+   - [Why Layers?](./architecture/why-layers.en.md) ⭐ NEW - Deep dive into layered architecture reasoning
+   - [Feature-Based Architecture](./architecture/feature-based.en.md)
    - [Layers](./architecture/layers.en.md)
    - [Dependency Flow](./architecture/dependency-flow.en.md)
 2. **Core patterns (why we do it this way)**

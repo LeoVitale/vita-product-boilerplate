@@ -8,7 +8,8 @@ Se voce e novo no repositorio, siga este caminho:
 
 1. **Visao geral da arquitetura**
    - [Visao Geral](./architecture/overview.pt.md)
-   - [Arquitetura Feature-Based](./architecture/feature-based.pt.md) ⭐ NEW
+   - [Por Que Camadas?](./architecture/why-layers.pt.md) ⭐ NEW - Mergulho profundo no raciocínio da arquitetura em camadas
+   - [Arquitetura Feature-Based](./architecture/feature-based.pt.md)
    - [Camadas](./architecture/layers.pt.md)
    - [Fluxo de Dependencias](./architecture/dependency-flow.pt.md)
 2. **Patterns principais (por que fazemos assim)**
