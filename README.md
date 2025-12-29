@@ -2,6 +2,48 @@
 
 A high-performance monorepo boilerplate for building professional-grade web applications using **Advanced Clean Architecture**, **SOLID principles**, and **Functional Patterns**.
 
+---
+
+> ⚠️ **IMPORTANT: Example Feature Included**
+>
+> This boilerplate includes a `Tasks` feature as an **educational example** to demonstrate
+> the architecture patterns. **Remove it before building your product.**
+>
+> 🧹 **To start clean:** `pnpm clean:example` or `./scripts/clean-example.sh`
+>
+> 📚 **See:** [Starting a Clean Project](./docs/getting-started/clean-slate.en.md)
+
+---
+
+## 🎯 How to Use This Boilerplate
+
+### Option 1: Learn the Architecture (Keep Example)
+
+Study the `Tasks` feature to understand how Clean Architecture works:
+
+```bash
+git clone <repo-url>
+pnpm install
+pnpm dev
+```
+
+Explore the code in `packages/{domain,application,infrastructure}/src/features/tasks/`.
+
+### Option 2: Start a New Product (Remove Example)
+
+Start fresh without the example code:
+
+```bash
+git clone <repo-url>
+pnpm install
+pnpm clean:example           # Remove Tasks example
+./scripts/verify-clean.sh    # Verify clean state
+./scripts/generate-feature.sh my-feature  # Create your first feature
+pnpm dev
+```
+
+---
+
 ## 🚀 Purpose
 
 The goal of this project is to provide a rock-solid, scalable foundation for web products. It enforces a strict separation of concerns, ensuring that business logic is written once and shared across the application, while maintaining high testability and type-safety.
@@ -52,22 +94,24 @@ This project uses a **Feature-Based Architecture** combining Clean Architecture 
 │   └── web/              # Next.js Presentation Layer
 ├── packages/
 │   ├── domain/src/
-│   │   ├── features/     # Feature slices (tasks, auth, etc.)
-│   │   │   └── tasks/    # Task feature domain
+│   │   ├── features/     # Feature slices (tasks*, auth, etc.)
+│   │   │   └── tasks/    # ⚠️ EXAMPLE - Remove before production
 │   │   └── shared/       # Cross-cutting (Result, Errors)
 │   ├── application/src/
 │   │   ├── features/     # Feature slices
-│   │   │   └── tasks/    # Task feature (use cases, hooks)
+│   │   │   └── tasks/    # ⚠️ EXAMPLE - Remove before production
 │   │   └── shared/       # Cross-feature utilities
 │   ├── infrastructure/src/
 │   │   ├── features/     # Feature slices
-│   │   │   └── tasks/    # Task feature (Apollo repos, mappers)
+│   │   │   └── tasks/    # ⚠️ EXAMPLE - Remove before production
 │   │   └── shared/       # Shared infra (Apollo config)
 │   ├── graphql/          # Shared GraphQL types/codegen
 │   ├── ui/               # Shared UI Components
 │   └── config/           # Shared ESLint, Prettier, and TS configs
 ├── scripts/
-│   └── generate-feature.sh  # Feature generator script
+│   ├── generate-feature.sh  # Feature generator script
+│   ├── clean-example.sh     # Remove example Tasks feature
+│   └── verify-clean.sh      # Verify clean state
 └── .cursor/rules/        # Cursor IDE architecture enforcement rules
 ```
 
@@ -139,15 +183,27 @@ See [`docs/testing/setup.en.md`](./docs/testing/setup.en.md) for details.
 pnpm generate
 ```
 
+### Cleanup Scripts
+
+```bash
+# Remove example Tasks feature
+pnpm clean:example
+
+# Verify clean state
+pnpm verify:clean
+```
+
 ---
 
 ## 📚 Documentation
 
 - **Start here (EN)**: [`docs/README.en.md`](./docs/README.en.md)
 - **Comece aqui (PT)**: [`docs/README.pt.md`](./docs/README.pt.md)
+- **Getting Started**:
+  - [Starting a Clean Project](./docs/getting-started/clean-slate.en.md) ⭐ NEW
 - **Architecture**:
-  - [Feature-Based Architecture](./docs/architecture/feature-based.en.md) ⭐ NEW
-  - [Public API Pattern](./docs/patterns/public-api.en.md) ⭐ NEW
+  - [Feature-Based Architecture](./docs/architecture/feature-based.en.md)
+  - [Public API Pattern](./docs/patterns/public-api.en.md)
   - [Apollo Client](./docs/architecture/apollo-client.en.md)
   - [Composition Root Pattern](./docs/patterns/composition-root.en.md)
   - [Testing Setup](./docs/testing/setup.en.md)

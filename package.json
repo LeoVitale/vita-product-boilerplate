@@ -27,6 +27,8 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
+    "clean:example": "./scripts/clean-example.sh",
+    "verify:clean": "./scripts/verify-clean.sh",
     "scripts:get-ip": "node scripts/get-local-ip.cjs",
     "scripts:setup-mobile": "node scripts/setup-mobile-env.cjs"
   },

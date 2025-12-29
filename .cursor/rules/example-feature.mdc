@@ -1,0 +1,68 @@
+---
+description: Rules about the example Tasks feature in this boilerplate
+globs:
+alwaysApply: true
+---
+
+# Example Feature: Tasks
+
+## Important Context
+
+The `Tasks` feature in this boilerplate is an **EDUCATIONAL EXAMPLE** designed to demonstrate Clean Architecture patterns. It is NOT meant for production use.
+
+## Location of Example Code
+
+The Tasks example exists in:
+
+- `packages/domain/src/features/tasks/` - Domain layer example
+- `packages/application/src/features/tasks/` - Application layer example
+- `packages/infrastructure/src/features/tasks/` - Infrastructure layer example
+- `packages/graphql/src/queries/tasks.graphql` - GraphQL operations
+- `apps/api/src/tasks/` - Backend module
+- `apps/web/app/page.tsx` - Web UI using Tasks
+- `apps/mobile/src/screens/TaskListScreen.tsx` - Mobile UI using Tasks
+
+## Rules for AI Assistants
+
+### DO NOT
+
+- Reference Tasks code when implementing new features for production
+- Copy Tasks code directly without explaining it's an example
+- Assume the user wants to keep Tasks in their final product
+- Add new functionality to the Tasks feature
+
+### DO
+
+- Use Tasks as a **reference** when explaining architecture patterns
+- Recommend cleanup before starting a new product: `pnpm clean:example`
+- Point users to the cleanup documentation: `docs/getting-started/clean-slate.en.md`
+- Generate new features using the generator: `./scripts/generate-feature.sh <name>`
+
+### When User Asks to Add a Feature
+
+1. First ask: "Have you removed the example Tasks feature, or would you like to keep it for reference?"
+2. If not cleaned, suggest: "Run `pnpm clean:example` first, or I can work alongside the example."
+3. Generate the new feature using the proper generator script
+4. Do NOT base new features on Tasks code structure - use the patterns, not the specifics
+
+### Cleanup Commands
+
+```bash
+# Remove example feature
+pnpm clean:example
+./scripts/clean-example.sh
+
+# Verify clean state
+pnpm verify:clean
+./scripts/verify-clean.sh
+
+# Generate new feature
+./scripts/generate-feature.sh my-feature
+```
+
+## Why This Matters
+
+- Users cloning this boilerplate want to build their OWN products
+- Tasks is just a teaching tool, not a starting point
+- Keeping example code leads to confusion and technical debt
+- A clean start is the proper way to use a boilerplate

@@ -24,6 +24,34 @@ fi
 FEATURE_NAME_LOWER="$1"
 FEATURE_NAME_PASCAL="$(echo "$1" | sed -r 's/(^|-)([a-z])/\U\2/g')"
 
+# =============================================================================
+# Check for example feature
+# =============================================================================
+if [ -d "packages/domain/src/features/tasks" ]; then
+  echo ""
+  echo "⚠️  ============================================================"
+  echo "   EXAMPLE FEATURE DETECTED"
+  echo "   ============================================================"
+  echo ""
+  echo "   The example 'tasks' feature is still present in the codebase."
+  echo "   This feature is for educational purposes only."
+  echo ""
+  echo "   Options:"
+  echo "   1. Remove the example first: pnpm clean:example"
+  echo "   2. Continue anyway (the example will remain)"
+  echo ""
+  echo "   📚 See: docs/getting-started/clean-slate.en.md"
+  echo ""
+  read -p "   Continue generating '$FEATURE_NAME_LOWER' feature? (y/N) " -n 1 -r
+  echo ""
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo ""
+    echo "   Aborted. Run 'pnpm clean:example' first, then try again."
+    exit 0
+  fi
+  echo ""
+fi
+
 echo "🚀 Generating feature: $FEATURE_NAME_LOWER (${FEATURE_NAME_PASCAL})"
 
 # Domain Layer
@@ -47,7 +75,7 @@ cat > "$DOMAIN_PATH/index.ts" << EOF
 /**
  * ${FEATURE_NAME_PASCAL} Feature - Domain Public API
  *
- * TODO: Export your entities, repository interfaces, and contracts here
+ * Export your entities, repository interfaces, and contracts here.
  */
 
 // Entities
@@ -80,7 +108,7 @@ cat > "$APP_PATH/index.ts" << EOF
 /**
  * ${FEATURE_NAME_PASCAL} Feature - Application Public API
  *
- * TODO: Export your use cases, hooks, and factories here
+ * Export your use cases, hooks, and factories here.
  */
 
 // Use Cases
@@ -113,7 +141,7 @@ cat > "$INFRA_PATH/index.ts" << EOF
 /**
  * ${FEATURE_NAME_PASCAL} Feature - Infrastructure Public API
  *
- * TODO: Export your repositories, mappers, and hooks here
+ * Export your repositories, mappers, and hooks here.
  */
 
 // Repositories
@@ -129,14 +157,56 @@ EOF
 echo ""
 echo "✅ Feature '$FEATURE_NAME_LOWER' created successfully!"
 echo ""
-echo "📝 Next steps:"
-echo "   1. Add entities to: $DOMAIN_PATH/entities/"
-echo "   2. Add repository interface to: $DOMAIN_PATH/repositories/"
-echo "   3. Add use cases to: $APP_PATH/use-cases/"
-echo "   4. Add hooks to: $APP_PATH/hooks/"
-echo "   5. Add repository implementation to: $INFRA_PATH/repositories/"
-echo "   6. Update the index.ts files to export your modules"
-echo "   7. Wire up in Composition Root: apps/web/src/providers/UseCasesProvider.tsx"
+echo "============================================================"
+echo "📝 NEXT STEPS"
+echo "============================================================"
 echo ""
-echo "📚 See docs/architecture/feature-based.en.md for guidance"
+echo "   1. DOMAIN LAYER ($DOMAIN_PATH/)"
+echo "      - Create entity: entities/${FEATURE_NAME_LOWER}.ts"
+echo "      - Create repository interface: repositories/${FEATURE_NAME_LOWER}-repository.interface.ts"
+echo "      - Create hook contracts: contracts/${FEATURE_NAME_LOWER}-query.interface.ts"
+echo ""
+echo "   2. APPLICATION LAYER ($APP_PATH/)"
+echo "      - Create use cases: use-cases/get-${FEATURE_NAME_LOWER}.use-case.ts"
+echo "      - Create hooks: hooks/use-get-${FEATURE_NAME_LOWER}.ts"
+echo "      - Create factory: factories/use-cases.factory.ts"
+echo ""
+echo "   3. INFRASTRUCTURE LAYER ($INFRA_PATH/)"
+echo "      - Create mapper: mappers/${FEATURE_NAME_LOWER}.mapper.ts"
+echo "      - Create Apollo repository: repositories/apollo-${FEATURE_NAME_LOWER}-repository.ts"
+echo "      - Create Apollo hooks: hooks/use-apollo-${FEATURE_NAME_LOWER}-query.ts"
+echo ""
+echo "   4. GRAPHQL (packages/graphql/)"
+echo "      - Create query: src/queries/${FEATURE_NAME_LOWER}.graphql"
+echo "      - Run: pnpm generate"
+echo ""
+echo "   5. BACKEND (apps/api/)"
+echo "      - Create module, resolver, service as needed"
+echo ""
+echo "   6. UPDATE EXPORTS"
+echo "      - packages/domain/src/index.ts"
+echo "      - packages/application/src/index.ts"
+echo "      - packages/infrastructure/src/index.ts"
+echo ""
+echo "   7. WIRE IN COMPOSITION ROOT"
+echo "      - apps/web/src/providers/UseCasesProvider.tsx"
+echo "      - apps/mobile/src/providers/UseCasesProvider.tsx"
+echo ""
+echo "============================================================"
+echo "📚 REFERENCE"
+echo "============================================================"
+echo ""
 
+# Check if tasks example exists for reference
+if [ -d "packages/domain/src/features/tasks" ]; then
+  echo "   The 'tasks' example feature is available for reference:"
+  echo "   - packages/domain/src/features/tasks/"
+  echo "   - packages/application/src/features/tasks/"
+  echo "   - packages/infrastructure/src/features/tasks/"
+  echo ""
+fi
+
+echo "   Documentation:"
+echo "   - docs/architecture/feature-based.en.md"
+echo "   - docs/workflows/adding-a-feature.en.md"
+echo ""

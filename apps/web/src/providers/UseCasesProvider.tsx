@@ -3,6 +3,14 @@
 import { createContext, useContext, useMemo, ReactNode } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 
+// ============================================================================
+// EXAMPLE FEATURE IMPORTS (Educational Purpose Only)
+// ============================================================================
+// The Tasks imports below demonstrate the wiring pattern.
+// Remove before starting your project: pnpm clean:example
+// See: docs/getting-started/clean-slate.en.md
+// ============================================================================
+
 // Application Layer - Tasks Feature
 import {
   // Query Providers
@@ -103,7 +111,9 @@ export function UseCasesProvider({ children }: UseCasesProviderProps) {
 
   const useCases = useMemo(() => {
     // ==========================================================================
-    // Tasks Feature - Infrastructure Setup
+    // EXAMPLE: Tasks Feature - Infrastructure Setup
+    // ==========================================================================
+    // This demonstrates the wiring pattern. Remove with: pnpm clean:example
     // ==========================================================================
     const taskRepository = new ApolloTaskRepository(client as GraphQLClient);
     const taskUseCases = createTaskUseCases(taskRepository);

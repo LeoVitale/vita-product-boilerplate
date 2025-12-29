@@ -5,11 +5,17 @@
  * All public repositories, mappers, and hooks are re-exported from here.
  *
  * Structure:
- * - features/tasks - Task feature infrastructure
+ * - features/ - Feature slices (add your features here)
  * - shared - Cross-cutting infrastructure (Apollo config, etc.)
  */
 
-// Features
+// ============================================================================
+// EXAMPLE FEATURE (Educational Purpose Only)
+// ============================================================================
+// The 'tasks' feature demonstrates Clean Architecture implementation.
+// Remove before starting your project: pnpm clean:example
+// See: docs/getting-started/clean-slate.en.md
+// ============================================================================
 export * from './features/tasks';
 
 // Shared (currently empty, prepared for future)

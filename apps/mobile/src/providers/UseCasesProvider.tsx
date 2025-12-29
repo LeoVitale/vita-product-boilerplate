@@ -1,5 +1,13 @@
 import { createContext, useContext, useMemo, ReactNode } from 'react';
 import { useApolloClient } from '@apollo/client/react';
+
+// ============================================================================
+// EXAMPLE FEATURE IMPORTS (Educational Purpose Only)
+// ============================================================================
+// The Tasks imports below demonstrate the wiring pattern.
+// Remove before starting your project: pnpm clean:example
+// See: docs/getting-started/clean-slate.en.md
+// ============================================================================
 import { createGetTasksUseCase, IGetTasksUseCase } from '@repo/application';
 import { ApolloTaskRepository } from '@repo/infrastructure';
 
@@ -24,7 +32,11 @@ export function UseCasesProvider({ children }: UseCasesProviderProps) {
   const client = useApolloClient();
 
   const useCases = useMemo(() => {
-    // Create infrastructure implementations
+    // ==========================================================================
+    // EXAMPLE: Tasks Feature - Infrastructure Setup
+    // ==========================================================================
+    // This demonstrates the wiring pattern. Remove with: pnpm clean:example
+    // ==========================================================================
     const taskRepository = new ApolloTaskRepository(client);
 
     // Wire up use cases with repositories

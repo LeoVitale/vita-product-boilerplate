@@ -2,6 +2,30 @@
 
 This document provides high-level guidance for AI coding assistants working on this codebase.
 
+---
+
+## IMPORTANT: Example Feature
+
+The `Tasks` feature in this boilerplate is **EDUCATIONAL ONLY**. It demonstrates how to implement Clean Architecture but should NOT be used in production.
+
+**DO NOT:**
+
+- ❌ Reference Tasks code when implementing new features for the user's product
+- ❌ Suggest adding features to the Tasks example
+- ❌ Assume Tasks will be part of the user's final product
+- ❌ Copy Tasks code directly without explaining it's an example
+
+**DO:**
+
+- ✅ Use Tasks as a **reference** to explain architecture patterns
+- ✅ Recommend running `pnpm clean:example` before starting a new product
+- ✅ Generate new features with `./scripts/generate-feature.sh <name>`
+- ✅ Point users to `docs/getting-started/clean-slate.en.md` for cleanup instructions
+
+**When starting a new feature:** Ask if the user has cleaned the example first, or if they want to keep it as reference.
+
+---
+
 ## Project Overview
 
 This is a **Clean Architecture monorepo** for building production-ready React applications with:
@@ -52,13 +76,13 @@ See: `.cursor/rules/feature-generator.mdc` for detailed guide.
 
 | Type                 | Pattern                          | Example                        |
 | -------------------- | -------------------------------- | ------------------------------ |
-| Entity               | `{name}.ts`                      | `task.ts`                      |
-| Schema               | `{Name}Schema`                   | `TaskSchema`                   |
-| Repository Interface | `{name}-repository.interface.ts` | `task-repository.interface.ts` |
-| Use Case             | `{action}-{entity}.use-case.ts`  | `get-tasks.use-case.ts`        |
-| Hook                 | `use-{entity}.ts`                | `use-tasks.ts`                 |
-| Mapper               | `{entity}.mapper.ts`             | `task.mapper.ts`               |
-| Apollo Repository    | `apollo-{entity}.repository.ts`  | `apollo-task.repository.ts`    |
+| Entity               | `{name}.ts`                      | `user.ts`                      |
+| Schema               | `{Name}Schema`                   | `UserSchema`                   |
+| Repository Interface | `{name}-repository.interface.ts` | `user-repository.interface.ts` |
+| Use Case             | `{action}-{entity}.use-case.ts`  | `get-users.use-case.ts`        |
+| Hook                 | `use-{entity}.ts`                | `use-users.ts`                 |
+| Mapper               | `{entity}.mapper.ts`             | `user.mapper.ts`               |
+| Apollo Repository    | `apollo-{entity}.repository.ts`  | `apollo-user.repository.ts`    |
 
 ## Commands
 
@@ -80,6 +104,10 @@ pnpm generate         # Generate GraphQL types
 # Docker (for API database)
 pnpm docker:up        # Start database containers
 pnpm docker:down      # Stop database containers
+
+# Cleanup (remove example feature)
+pnpm clean:example    # Remove Tasks example
+pnpm verify:clean     # Verify clean state
 ```
 
 ## Common Patterns
@@ -136,6 +164,7 @@ if (result.ok) {
 
 ## Documentation
 
+- Getting Started: `docs/getting-started/`
 - Architecture: `docs/architecture/`
 - Patterns: `docs/patterns/`
 - Workflows: `docs/workflows/`
@@ -149,6 +178,7 @@ All docs are bilingual (English `.en.md` and Portuguese `.pt.md`).
 - ❌ Skip tests for business logic
 - ❌ Create `__tests__` folders (use co-location)
 - ❌ Define GraphQL queries in app layer
+- ❌ Reference the Tasks example as production code
 
 ## Cursor Rules
 
@@ -157,6 +187,7 @@ Detailed rules are in `.cursor/rules/`:
 - `clean-arch-rules.mdc` - Architecture rules (always applied)
 - `tdd-rules.mdc` - Testing requirements (always applied)
 - `docs-rules.mdc` - Documentation requirements (always applied)
+- `example-feature.mdc` - Rules about the example Tasks feature
 - `domain-entity.mdc` - Entity creation guide
 - `repository-interface.mdc` - Repository contract guide
 - `use-case.mdc` - Use case creation guide

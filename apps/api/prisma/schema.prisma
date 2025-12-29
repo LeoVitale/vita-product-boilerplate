@@ -10,7 +10,14 @@ datasource db {
   provider = "postgresql"
 }
 
-// Example model - replace with your domain entities
+// ============================================================================
+// EXAMPLE MODEL (Educational Purpose Only)
+// ============================================================================
+// This Task model demonstrates Prisma schema patterns.
+// Remove before starting your project: pnpm clean:example
+// Then run: pnpm --filter api prisma migrate dev --name remove_tasks
+// See: docs/getting-started/clean-slate.en.md
+// ============================================================================
 model Task {
   id          String   @id @default(uuid())
   title       String
