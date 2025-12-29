@@ -2,7 +2,7 @@
 alwaysApply: true
 ---
 
-# TDD Rules (Vitest) - Mandatory
+# TDD Rules (Vitest / Jest) - Mandatory
 
 This workspace enforces **Test-Driven Development (TDD)** for **all new feature code**.
 
@@ -13,6 +13,7 @@ TDD is required for changes that add or modify business behavior in:
 - `packages/domain/**`
 - `packages/application/**`
 - `packages/infrastructure/**`
+- `apps/api/**`
 
 Docs-only changes are excluded.
 
@@ -25,10 +26,37 @@ For every new/changed behavior you must provide:
 - Minimal implementation to pass (Green)
 - Refactor with all tests green (Refactor)
 
-## Test stack
+## Test Stack
 
-- Use **Vitest**.
+| Location                  | Framework  | Config                       |
+| ------------------------- | ---------- | ---------------------------- |
+| `packages/*`              | **Vitest** | `vitest.config.ts`           |
+| `apps/api`                | **Jest**   | `package.json` (jest config) |
+| `apps/web`, `apps/mobile` | **Vitest** | `vitest.config.ts`           |
+
 - Tests must be deterministic (no real network/time/randomness).
+
+## Test File Location (Co-location)
+
+Tests **MUST** be placed **next to the code they test**, not in separate `__tests__` folders.
+
+```
+✅ Correct (co-location):
+packages/domain/src/features/tasks/entities/
+├── task.ts
+└── task.test.ts
+
+packages/application/src/features/tasks/use-cases/
+├── get-tasks.use-case.ts
+└── get-tasks.use-case.test.ts
+
+❌ Wrong (separate folder):
+packages/domain/src/features/tasks/
+├── entities/
+│   └── task.ts
+└── __tests__/
+    └── task.test.ts
+```
 
 ## What to test (by layer)
 
@@ -36,26 +64,52 @@ For every new/changed behavior you must provide:
 
 - Zod invariants (schema validation)
 - Pure utilities and domain rules
+- Entity creation and validation
 
 ### Application
 
-- Use case behavior with **fake repositories**
+- Use case behavior with **fake/mock repositories**
 - Success and failure paths using `Result`
+- Hook behavior with **mock infrastructure hooks**
 
 ### Infrastructure
 
-- Boundary mapping (external data -> domain entity)
-- Repository behavior using a stubbed client (no real network)
+- Boundary mapping (external data → domain entity)
+- Repository behavior using a **stubbed Apollo client** (no real network)
+- Mapper transformations
+
+### API (apps/api)
+
+- Resolver logic with **mocked services**
+- Service behavior with **mocked Prisma client**
+- E2E tests for critical flows
 
 ## Conventions
 
-- Name tests by behavior: `given_when_then`.
+- Name tests by behavior: `given_when_then` or descriptive `describe/it`.
 - Prefer unit tests for domain + use cases.
 - Keep tests small and focused; avoid snapshot tests for business logic.
+- Use `vi.mock()` (Vitest) or `jest.mock()` (Jest) for mocking.
+
+## Test Naming Examples
+
+```typescript
+// Vitest (packages/*)
+describe('TaskSchema', () => {
+  it('should validate a valid task', () => { ... });
+  it('should reject task with empty title', () => { ... });
+});
+
+// Jest (apps/api)
+describe('TaskResolver', () => {
+  it('should return all tasks', async () => { ... });
+  it('should create a new task', async () => { ... });
+});
+```
 
 ## If a test harness is not available yet
 
-If Vitest is not configured yet, you must still:
+If Vitest/Jest is not configured yet, you must still:
 
 - Write the test files in the expected location
 - Add a short note in the PR/commit describing what is missing to run them
@@ -65,3 +119,4 @@ If Vitest is not configured yet, you must still:
 - TDD (Martin Fowler): `https://martinfowler.com/bliki/TestDrivenDevelopment.html`
 - Agile Alliance glossary: `https://www.agilealliance.org/glossary/tdd/`
 - Vitest: `https://vitest.dev/`
+- Jest: `https://jestjs.io/`

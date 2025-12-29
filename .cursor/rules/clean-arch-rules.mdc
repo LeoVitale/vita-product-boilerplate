@@ -10,13 +10,15 @@ This workspace follows Advanced Clean Architecture with SOLID principles, Apollo
 
 ```
 packages/
-├── domain/              # Domain entities (Zod) + repository interfaces (contracts) + Result Pattern
-├── application/         # Pure Use Cases (orchestration) + Hooks
-├── infrastructure/      # Technical implementations (Apollo Client repositories, adapters)
+├── domain/              # Domain entities (Zod) + repository interfaces + contracts
+├── application/         # Use Cases + Hooks + Factories
+├── infrastructure/      # Apollo implementations + mappers + Apollo hooks
 ├── graphql/             # Generated GraphQL documents/types (shared)
+├── config/              # Shared configurations (ESLint, Prettier, TypeScript)
 └── ui/                  # Shared UI primitives
 
 apps/
+├── api/                 # Backend (NestJS + Prisma + GraphQL)
 ├── web/                 # Presentation (Next.js) + Composition Root
 └── mobile/              # Presentation (Expo) + Composition Root
 ```
@@ -28,7 +30,8 @@ apps/
 **The heart of the application. Pure TypeScript.**
 
 - ✅ Define entities using **Zod** for schema validation and type safety.
-- ✅ Declare **repository interfaces** (abstract contracts).
+- ✅ Declare **repository interfaces** (abstract contracts for data access).
+- ✅ Declare **hook contracts** (interfaces for mutation/query hooks in `contracts/`).
 - ✅ Use the **Result Pattern** (`{ ok: true, value: T } | { ok: false, error: E }`) for domain errors.
 - ❌ FORBIDDEN: Frameworks, Apollo Client, Infrastructure details, external libraries (except Zod).
 
@@ -45,24 +48,51 @@ apps/
 
 #### Hooks (`hooks/`)
 
-- ✅ Orchestrate Use Cases and Repositories.
+- ✅ Orchestrate Use Cases and infrastructure hooks.
 - ✅ Manage React state (loading, error, data).
 - ✅ Return standard format: `{ data, isLoading, isError, error, refetch }`.
+- ✅ Depend on **contracts** defined in domain layer.
+
+#### Factories (`factories/`)
+
+- ✅ Create use case instances with proper dependency injection.
+- ✅ Used by hooks to instantiate use cases.
 
 ### Infrastructure Layer (`@repo/infrastructure`)
 
 **External world implementations.**
 
+#### Repositories (`repositories/`)
+
 - ✅ Implement repository interfaces using **Apollo Client** or other tools.
-- ✅ Map external data formats to Domain Entities using **Mappers**.
 - ✅ Handle technical errors and convert them to Domain Errors.
 
-### Presentation Layer (apps)
+#### Mappers (`mappers/`)
+
+- ✅ Map external data formats (GraphQL responses) to Domain Entities.
+- ✅ Validate data using Zod schemas.
+
+#### Hooks (`hooks/`)
+
+- ✅ Implement **hook contracts** defined in domain layer.
+- ✅ Wrap Apollo Client hooks (`useQuery`, `useMutation`).
+- ✅ Handle Apollo-specific concerns (caching, optimistic updates).
+
+### Backend Layer (`apps/api`)
+
+**NestJS GraphQL API with Prisma.**
+
+- ✅ Define GraphQL resolvers and schema.
+- ✅ Use Prisma for database access.
+- ✅ Handle authentication and authorization.
+- ❌ FORBIDDEN: Frontend code, React components.
+
+### Presentation Layer (`apps/web`, `apps/mobile`)
 
 **The "Imperative Shell".**
 
 - ✅ React components (Next.js / Expo).
-- ✅ **Composition Root**: Instantiate repositories and use cases here (via `useMemo` or Providers).
+- ✅ **Composition Root**: Wire infrastructure hooks with application hooks.
 - ✅ Use hooks from `@repo/application`.
 - ❌ FORBIDDEN: Define GraphQL queries, business logic, or direct repository access.
 
@@ -74,22 +104,59 @@ graph LR
     Apps --> InfraPkg[@repo/infrastructure]
     AppPkg --> DomainPkg[@repo/domain]
     InfraPkg --> DomainPkg
+    API[apps/api] --> DB[(Database)]
 ```
 
 - `@repo/domain` is the most stable and has NO dependencies.
 - `@repo/application` depends only on `@repo/domain`.
-- `@repo/infrastructure` depends on `@repo/domain` (to implement interfaces).
+- `@repo/infrastructure` depends on `@repo/domain` (to implement interfaces/contracts).
 - `Apps` connect everything (Composition Root).
 
 ## Conventions
 
-### Naming
+### File Naming (kebab-case)
 
-- Entities: PascalCase (`Task`).
-- Schemas: `{Entity}Schema` (`TaskSchema`).
-- Repository Interfaces: `{Entity}RepositoryInterface`.
-- Use Cases: `{Action}{Entity}UseCase` (`GetTasksUseCase`).
-- Implementations: `{Tech}{Entity}Repository` (`ApolloTaskRepository`).
+| Type                 | File Pattern                      | Class/Export Pattern        |
+| -------------------- | --------------------------------- | --------------------------- |
+| Entity               | `{name}.ts`                       | `{Name}Schema`, `{Name}`    |
+| Repository Interface | `{name}-repository.interface.ts`  | `{Name}RepositoryInterface` |
+| Hook Contract        | `{name}-{type}.interface.ts`      | `{Name}{Type}Interface`     |
+| Use Case             | `{action}-{entity}.use-case.ts`   | `{Action}{Entity}UseCase`   |
+| Hook                 | `use-{action}-{entity}.ts`        | `use{Action}{Entity}`       |
+| Mapper               | `{entity}.mapper.ts`              | `{Entity}Mapper`            |
+| Apollo Repository    | `apollo-{entity}-repository.ts`   | `Apollo{Entity}Repository`  |
+| Apollo Hook          | `use-apollo-{action}-{entity}.ts` | `useApollo{Action}{Entity}` |
+| Factory              | `{name}.factory.ts`               | `create{Name}Factory`       |
+
+### Domain Structure
+
+```
+packages/domain/src/features/{feature}/
+├── entities/           # Zod schemas and types
+├── repositories/       # Repository interfaces (data access contracts)
+├── contracts/          # Hook interfaces (mutation/query contracts)
+└── index.ts            # Public API exports
+```
+
+### Application Structure
+
+```
+packages/application/src/features/{feature}/
+├── use-cases/          # Pure business logic classes
+├── hooks/              # React hooks that orchestrate use cases
+├── factories/          # Use case factory functions
+└── index.ts            # Public API exports
+```
+
+### Infrastructure Structure
+
+```
+packages/infrastructure/src/features/{feature}/
+├── repositories/       # Apollo repository implementations
+├── mappers/            # Data transformation (GraphQL → Domain)
+├── hooks/              # Apollo hook implementations
+└── index.ts            # Public API exports
+```
 
 ### Error Handling (Result Pattern)
 
@@ -97,7 +164,7 @@ Always return a `Result` from Use Cases and Repositories instead of throwing.
 
 ```typescript
 // use-case
-async execute(): Promise<Result<Task[]>> { ... }
+async execute(): Promise<Result<Task[], DomainError>> { ... }
 
 // hook consumption
 const result = await useCase.execute();
@@ -109,6 +176,7 @@ if (result.ok) { /* success */ } else { /* handle error */ }
 - **ALWAYS** use Zod for domain entity definitions.
 - **ALWAYS** return `Result` types for error handling.
 - **ALWAYS** inject repositories into use cases (Dependency Inversion).
+- **ALWAYS** define hook contracts in domain layer, implement in infrastructure.
 - **NEVER** import from `apps/` or `@repo/infrastructure` inside `@repo/application`.
 
 ## Additional mandatory rules
