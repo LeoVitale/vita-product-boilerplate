@@ -18,6 +18,7 @@ If you are new to the repo, follow this learning path:
    - [Zod in the Domain](./patterns/zod-domain.en.md)
    - [Dependency Injection](./patterns/dependency-injection.en.md)
    - [Mappers and Boundaries](./patterns/mappers-and-boundaries.en.md)
+   - [Performance Optimization](./patterns/performance-optimization.en.md) ⭐ NEW - Decision framework for optimizations
 3. **Workflows (how to build features here)**
    - [Adding a Feature](./workflows/adding-a-feature.en.md)
    - [TDD Workflow (Vitest)](./workflows/tdd.en.md)

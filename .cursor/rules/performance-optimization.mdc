@@ -1,0 +1,427 @@
+---
+description: Decision framework for performance optimizations - when to apply and when to skip
+globs:
+  - 'packages/infrastructure/**/*.ts'
+  - 'apps/web/**/*.{ts,tsx}'
+  - 'apps/mobile/**/*.{ts,tsx}'
+alwaysApply: false
+---
+
+# Performance Optimization Decision Framework
+
+Use this guide **during development** to evaluate if performance optimizations are worth implementing. Not every optimization is worth the complexity - evaluate based on **real impact**, not theoretical benefits.
+
+## Decision Criteria
+
+Before implementing any optimization, ask:
+
+1. **Is there a measurable problem?** (Lighthouse score < 90, bundle size > 500KB, slow API calls)
+2. **Will users notice the difference?** (Is it > 100ms improvement?)
+3. **What's the maintenance cost?** (Will it make code harder to understand?)
+4. **Is it premature?** (Are we optimizing before having real usage data?)
+
+## Optimization Categories
+
+### 🟢 High ROI - Usually Worth It
+
+These optimizations have high impact with low complexity:
+
+#### 1. Apollo Cache Type Policies
+
+**When to apply:**
+
+- ✅ You have entities with relationships (Task → User, Order → Product)
+- ✅ You're doing `refetchQueries` after mutations
+- ✅ You have multiple queries fetching the same entity
+
+**When to skip:**
+
+- ❌ Simple CRUD with no relationships
+- ❌ Single query per entity
+- ❌ Data changes rarely
+
+**Decision checklist:**
+
+- [ ] Do I have entities that appear in multiple queries?
+- [ ] Am I using `refetchQueries` after mutations?
+- [ ] Would cache normalization reduce duplicate requests?
+
+**Example:**
+
+```typescript
+// ✅ Apply when: Task appears in list + detail queries
+cache: new InMemoryCache({
+  typePolicies: {
+    Task: {
+      keyFields: ['id'],
+    },
+  },
+});
+
+// ❌ Skip when: Only one query per entity, no relationships
+```
+
+#### 2. Optimistic Updates (Mutations)
+
+**When to apply:**
+
+- ✅ Mutations that users trigger frequently (toggle, like, favorite)
+- ✅ Network latency > 200ms
+- ✅ Users expect instant feedback
+
+**When to skip:**
+
+- ❌ Critical operations (delete, payment)
+- ❌ Complex mutations with side effects
+- ❌ Low-frequency operations
+
+**Decision checklist:**
+
+- [ ] Is this mutation triggered frequently by users?
+- [ ] Can I predict the result accurately?
+- [ ] What happens if the mutation fails? (Can I rollback?)
+
+**Example:**
+
+```typescript
+// ✅ Apply: Toggle task completion (frequent, predictable)
+optimisticResponse: {
+  toggleTaskComplete: {
+    ...task,
+    completed: !task.completed,
+  },
+}
+
+// ❌ Skip: Delete task (critical, needs confirmation)
+```
+
+#### 3. Dynamic Imports (Code Splitting)
+
+**When to apply:**
+
+- ✅ Components > 50KB (check bundle analyzer)
+- ✅ Routes/pages not accessed by all users
+- ✅ Heavy third-party libraries (charts, editors)
+
+**When to skip:**
+
+- ❌ Small components (< 10KB)
+- ❌ Above-the-fold content
+- ❌ Frequently used components
+
+**Decision checklist:**
+
+- [ ] What's the bundle size? (`pnpm build` + analyze)
+- [ ] Is this component used by < 50% of users?
+- [ ] Can users wait 100-200ms for it to load?
+
+**Example:**
+
+```typescript
+// ✅ Apply: Admin dashboard (used by < 10% of users)
+const AdminDashboard = dynamic(() => import('./AdminDashboard'), {
+  loading: () => <Loading />,
+  ssr: false,
+})
+
+// ❌ Skip: Navigation bar (used by 100% of users)
+```
+
+### 🟡 Medium ROI - Evaluate Case-by-Case
+
+These optimizations have moderate impact but higher complexity:
+
+#### 4. Apollo Cache Persistence
+
+**When to apply:**
+
+- ✅ Mobile apps (offline-first)
+- ✅ Users frequently return to same data
+- ✅ Data changes slowly (catalog, settings)
+
+**When to skip:**
+
+- ❌ Real-time data (chat, notifications)
+- ❌ Sensitive data (auth tokens)
+- ❌ Data changes frequently
+
+**Decision checklist:**
+
+- [ ] Do users need offline access?
+- [ ] How often does data change?
+- [ ] Is data sensitive?
+
+**Example:**
+
+```typescript
+// ✅ Apply: Product catalog (changes weekly, users browse offline)
+import { persistCache } from 'apollo3-cache-persist';
+
+// ❌ Skip: Real-time chat (changes every second)
+```
+
+#### 5. Next.js Image Optimization
+
+**When to apply:**
+
+- ✅ You have > 10 images per page
+- ✅ Images are > 100KB each
+- ✅ Images are user-generated (need optimization)
+
+**When to skip:**
+
+- ❌ Few images (< 5 per page)
+- ❌ Already optimized images (SVG, WebP)
+- ❌ Images from CDN with optimization
+
+**Decision checklist:**
+
+- [ ] How many images per page?
+- [ ] Average image size?
+- [ ] Are images already optimized?
+
+**Example:**
+
+```typescript
+// ✅ Apply: Product gallery with 20+ images
+import Image from 'next/image';
+
+// ❌ Skip: Logo and 2 icons (already SVG)
+```
+
+#### 6. Query Result Memoization
+
+**When to apply:**
+
+- ✅ Expensive computations in hooks
+- ✅ Same data used in multiple components
+- ✅ Data doesn't change frequently
+
+**When to skip:**
+
+- ❌ Simple data transformations
+- ❌ Data changes frequently
+- ❌ Already memoized by Apollo
+
+**Decision checklist:**
+
+- [ ] Is computation expensive? (> 10ms)
+- [ ] Is data used in multiple places?
+- [ ] Does Apollo already cache this?
+
+**Example:**
+
+```typescript
+// ✅ Apply: Filtering/sorting large lists (> 100 items)
+const filteredTasks = useMemo(() => tasks.filter((t) => t.completed), [tasks]);
+
+// ❌ Skip: Simple mapping (< 10 items)
+```
+
+### 🔴 Low ROI - Usually Skip (Unless Proven Need)
+
+These optimizations have low impact or high complexity:
+
+#### 7. Manual Cache Updates (Instead of refetchQueries)
+
+**When to apply:**
+
+- ✅ You've measured that `refetchQueries` is slow (> 500ms)
+- ✅ You have complex cache relationships
+- ✅ You need fine-grained control
+
+**When to skip:**
+
+- ❌ `refetchQueries` works fine (< 200ms)
+- ❌ Simple cache structure
+- ❌ Early in development
+
+**Decision checklist:**
+
+- [ ] Have I measured `refetchQueries` performance?
+- [ ] Is it actually slow?
+- [ ] Is the complexity worth it?
+
+**Example:**
+
+```typescript
+// ✅ Apply: After measuring slow refetchQueries
+update: (cache, { data }) => {
+  // Complex cache update logic
+};
+
+// ❌ Skip: refetchQueries works fine, keep it simple
+refetchQueries: [{ query: GetTasksDocument }];
+```
+
+#### 8. Service Workers / PWA
+
+**When to apply:**
+
+- ✅ Mobile-first app
+- ✅ Offline functionality is core feature
+- ✅ Users need app-like experience
+
+**When to skip:**
+
+- ❌ Desktop-only app
+- ❌ Always-online requirement
+- ❌ Early MVP stage
+
+#### 9. Bundle Size Micro-optimizations
+
+**When to apply:**
+
+- ✅ Bundle > 1MB (after compression)
+- ✅ Lighthouse score < 70
+- ✅ Users on slow connections (mobile, 3G)
+
+**When to skip:**
+
+- ❌ Bundle < 500KB
+- ❌ Desktop-only app
+- ❌ Internal tools
+
+## Performance Review Checklist
+
+Use this checklist **monthly** or when performance issues arise:
+
+### Initial Setup (Do Once)
+
+- [ ] Set up bundle analyzer (`@next/bundle-analyzer`)
+- [ ] Configure Lighthouse CI (or manual checks)
+- [ ] Set up Web Vitals monitoring (Vercel Analytics or custom)
+- [ ] Document baseline metrics (bundle size, Lighthouse score)
+
+### Apollo Client
+
+- [ ] Review `refetchQueries` usage - can any be replaced with optimistic updates?
+- [ ] Check if Type Policies would help with cache normalization
+- [ ] Evaluate cache persistence for mobile apps
+- [ ] Measure mutation performance - are they slow?
+
+### Next.js
+
+- [ ] Run bundle analyzer - identify large dependencies
+- [ ] Check Lighthouse score - target > 90
+- [ ] Review dynamic imports - are heavy components lazy-loaded?
+- [ ] Verify Image component usage for user-generated images
+
+### Code Quality
+
+- [ ] Review expensive computations - are they memoized?
+- [ ] Check for unnecessary re-renders (React DevTools Profiler)
+- [ ] Evaluate if any optimizations add unnecessary complexity
+
+## Metrics to Track
+
+### Bundle Size
+
+- **Target:** < 500KB (gzipped) for initial load
+- **Action:** If > 500KB, use bundle analyzer to find culprits
+
+### Lighthouse Score
+
+- **Target:** > 90 for Performance
+- **Action:** If < 90, prioritize optimizations based on Lighthouse suggestions
+
+### Web Vitals
+
+- **LCP (Largest Contentful Paint):** < 2.5s
+- **FID (First Input Delay):** < 100ms
+- **CLS (Cumulative Layout Shift):** < 0.1
+
+### Apollo Cache Hit Rate
+
+- **Target:** > 70% cache hits for queries
+- **Action:** If < 70%, review fetch policies and cache configuration
+
+## Red Flags (Apply Optimization Immediately)
+
+These indicate you **must** optimize:
+
+1. **Lighthouse Performance < 50** → Critical performance issues
+2. **Bundle size > 1MB** → Users on slow connections will struggle
+3. **Mutation latency > 1s** → Users notice delay
+4. **Cache hit rate < 30%** → Too many unnecessary requests
+5. **LCP > 4s** → Poor perceived performance
+
+## When to Skip Optimizations
+
+**Skip optimizations when:**
+
+- ✅ No measurable performance problem exists
+- ✅ Optimization adds significant complexity
+- ✅ You're in early MVP stage (premature optimization)
+- ✅ Users don't notice the difference (< 100ms improvement)
+- ✅ Maintenance cost > performance benefit
+
+**Remember:** Clean, maintainable code > micro-optimizations
+
+## Quick Reference: Decision Tree
+
+```
+Is there a measurable problem?
+├─ No → Skip optimization
+└─ Yes → Is it affecting users?
+    ├─ No → Skip optimization
+    └─ Yes → What's the complexity?
+        ├─ Low → Apply optimization
+        └─ High → Measure ROI
+            ├─ ROI > 2x → Apply optimization
+            └─ ROI < 2x → Skip optimization
+```
+
+## Examples: Real-World Decisions
+
+### Example 1: E-commerce Product List
+
+**Context:** Product list with 100+ items, filters, sorting
+
+**Optimizations to apply:**
+
+- ✅ Dynamic import for filters component (not always visible)
+- ✅ Memoize filtered/sorted results (expensive computation)
+- ✅ Apollo Type Policies (products appear in list + detail)
+- ✅ Optimistic updates for "Add to Cart" (frequent action)
+
+**Optimizations to skip:**
+
+- ❌ Cache persistence (products change frequently)
+- ❌ Manual cache updates (refetchQueries works fine)
+
+### Example 2: Admin Dashboard
+
+**Context:** Admin panel with charts, tables, used by < 5% of users
+
+**Optimizations to apply:**
+
+- ✅ Dynamic import entire dashboard (rarely accessed)
+- ✅ Lazy load charts library (heavy dependency)
+- ✅ Cache persistence (admin data changes slowly)
+
+**Optimizations to skip:**
+
+- ❌ Optimistic updates (admin actions need confirmation)
+- ❌ Complex cache policies (simple data structure)
+
+### Example 3: Real-time Chat
+
+**Context:** Chat app with messages updating every second
+
+**Optimizations to apply:**
+
+- ✅ Optimistic updates for sending messages (instant feedback)
+- ✅ Virtual scrolling for message list (1000+ messages)
+
+**Optimizations to skip:**
+
+- ❌ Cache persistence (data changes constantly)
+- ❌ Complex cache policies (simple linear list)
+
+## References
+
+- [Apollo Cache Configuration](https://www.apollographql.com/docs/react/caching/cache-configuration/)
+- [Next.js Performance](https://nextjs.org/docs/app/building-your-application/optimizing)
+- [Web Vitals](https://web.dev/vitals/)
+- [Bundle Analysis](https://nextjs.org/docs/app/api-reference/next-config-js/analyze)

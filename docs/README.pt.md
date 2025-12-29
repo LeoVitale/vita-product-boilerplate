@@ -18,6 +18,7 @@ Se voce e novo no repositorio, siga este caminho:
    - [Zod no Dominio](./patterns/zod-domain.pt.md)
    - [Injecao de Dependencia](./patterns/dependency-injection.pt.md)
    - [Mappers e Boundaries](./patterns/mappers-and-boundaries.pt.md)
+   - [Otimizacao de Performance](./patterns/performance-optimization.pt.md) ⭐ NEW - Framework de decisao para otimizacoes
 3. **Workflows (como construir features aqui)**
    - [Criando uma Feature](./workflows/adding-a-feature.pt.md)
    - [Workflow de TDD (Vitest)](./workflows/tdd.pt.md)
