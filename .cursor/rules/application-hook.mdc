@@ -1,0 +1,96 @@
+---
+description: Rules for creating React hooks in the application layer
+globs:
+  - 'packages/application/**/hooks/**/*.ts'
+  - 'packages/infrastructure/**/hooks/**/*.ts'
+  - '!**/*.test.ts'
+alwaysApply: false
+---
+
+# Application Hook Rules
+
+When creating or editing hooks:
+
+## Required Structure
+
+```typescript
+import { useState, useCallback } from 'react';
+import {
+  [EntityName],
+  [EntityName]RepositoryInterface,
+} from '@repo/domain';
+
+interface Use[Action][EntityName]Result {
+  data: [EntityName][] | null;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => Promise<void>;
+}
+
+/**
+ * Hook for [action description]
+ *
+ * Orchestrates the [Action][EntityName]UseCase and manages
+ * React state for loading, error, and data.
+ */
+export function use[Action][EntityName](
+  repository: [EntityName]RepositoryInterface
+): Use[Action][EntityName]Result {
+  const [data, setData] = useState<[EntityName][] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    const result = await repository.findAll();
+
+    if (result.ok) {
+      setData(result.value);
+    } else {
+      setError(new Error(result.error.message));
+    }
+
+    setIsLoading(false);
+  }, [repository]);
+
+  return {
+    data,
+    isLoading,
+    isError: error !== null,
+    error,
+    refetch: fetch,
+  };
+}
+```
+
+## Standard Return Shape
+
+ALL hooks MUST return this shape (Liskov Substitution):
+
+```typescript
+{
+  data: T | null;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => Promise<void>;
+  // Additional fields allowed, but above are required
+}
+```
+
+## Rules
+
+- ✅ Accept repository via parameter (Dependency Inversion)
+- ✅ Return standard shape with data, isLoading, isError, error, refetch
+- ✅ Use `useCallback` for functions that will be used in effects
+- ✅ Handle Result pattern from use cases/repositories
+- ✅ Name: `use[Action][EntityName]` (e.g., `useGetTasks`, `useCreateTask`)
+- ❌ NEVER instantiate repositories inside hooks
+- ❌ NEVER make direct Apollo/fetch calls
+
+## Example Reference
+
+See: `packages/application/src/features/tasks/hooks/`

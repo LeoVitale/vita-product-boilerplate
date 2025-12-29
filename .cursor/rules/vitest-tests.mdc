@@ -1,0 +1,154 @@
+---
+description: Rules for writing tests with Vitest
+globs:
+  - '**/*.test.ts'
+  - '**/*.spec.ts'
+alwaysApply: false
+---
+
+# Vitest Test Rules
+
+When creating or editing tests:
+
+## Test File Location
+
+Use co-location pattern [[memory:12199986]]:
+
+- `component.ts` → `component.test.ts` (same folder)
+- NOT in `__tests__/` folder
+
+## Test Structure
+
+```typescript
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+describe('[UnitName]', () => {
+  // Arrange: shared setup
+  let dependency: MockType;
+
+  beforeEach(() => {
+    dependency = createMock();
+  });
+
+  describe('[methodName]', () => {
+    it('given_[precondition]_when_[action]_then_[expected]', async () => {
+      // Arrange
+      const input = { ... };
+
+      // Act
+      const result = await unit.method(input);
+
+      // Assert
+      expect(result.ok).toBe(true);
+      expect(result.value).toEqual(expected);
+    });
+
+    it('given_[precondition]_when_[action]_then_[expected_failure]', async () => {
+      // Arrange
+      const invalidInput = { ... };
+
+      // Act
+      const result = await unit.method(invalidInput);
+
+      // Assert
+      expect(result.ok).toBe(false);
+      expect(result.error.code).toBe('EXPECTED_ERROR');
+    });
+  });
+});
+```
+
+## Naming Convention
+
+Use Given/When/Then format:
+
+- `given_validTask_when_create_then_returnsTask`
+- `given_emptyTitle_when_validate_then_failsWithMinLength`
+- `given_networkError_when_fetch_then_returnsFailResult`
+
+## Testing by Layer
+
+### Domain (entities)
+
+```typescript
+describe('TaskSchema', () => {
+  it('given_validData_when_parse_then_returnsTask', () => {
+    const data = { id: '1', title: 'Test', ... };
+    const result = TaskSchema.safeParse(data);
+    expect(result.success).toBe(true);
+  });
+
+  it('given_shortTitle_when_parse_then_fails', () => {
+    const data = { id: '1', title: 'Ab', ... };
+    const result = TaskSchema.safeParse(data);
+    expect(result.success).toBe(false);
+  });
+});
+```
+
+### Application (use cases)
+
+```typescript
+describe('GetTasksUseCase', () => {
+  let useCase: GetTasksUseCase;
+  let fakeRepo: TaskRepositoryInterface;
+
+  beforeEach(() => {
+    fakeRepo = {
+      findAll: vi.fn(),
+      // ... other methods
+    };
+    useCase = new GetTasksUseCase(fakeRepo);
+  });
+
+  it('given_tasksExist_when_execute_then_returnsTasks', async () => {
+    const tasks = [createFakeTask()];
+    vi.mocked(fakeRepo.findAll).mockResolvedValue(ok(tasks));
+
+    const result = await useCase.execute();
+
+    expect(result.ok).toBe(true);
+    expect(result.value).toEqual(tasks);
+  });
+});
+```
+
+### Infrastructure (repositories)
+
+```typescript
+describe('ApolloTaskRepository', () => {
+  let repo: ApolloTaskRepository;
+  let mockClient: MockApolloClient;
+
+  beforeEach(() => {
+    mockClient = createMockApolloClient();
+    repo = new ApolloTaskRepository(mockClient);
+  });
+
+  it('given_graphqlSuccess_when_findAll_then_returnsMappedTasks', async () => {
+    mockClient.query.mockResolvedValue({
+      data: { tasks: [rawGraphQLTask] },
+    });
+
+    const result = await repo.findAll();
+
+    expect(result.ok).toBe(true);
+    expect(result.value[0]).toMatchObject({
+      id: rawGraphQLTask.id,
+      title: rawGraphQLTask.title,
+    });
+  });
+});
+```
+
+## Rules
+
+- ✅ One `describe` per unit/class
+- ✅ Nested `describe` per method
+- ✅ Given/When/Then naming
+- ✅ Arrange/Act/Assert structure in each test
+- ✅ Use `vi.fn()` and `vi.mocked()` for mocks
+- ✅ Test both success and failure paths
+- ❌ NEVER use real network/API calls
+- ❌ NEVER use snapshots for business logic
+- ❌ NEVER test implementation details

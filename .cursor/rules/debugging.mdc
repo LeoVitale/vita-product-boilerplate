@@ -1,0 +1,101 @@
+---
+description: Guidelines for debugging issues in this codebase
+globs: []
+alwaysApply: false
+---
+
+# Debugging Guidelines
+
+Use this guide when asked to fix bugs or debug issues.
+
+## Debugging Strategy
+
+### 1. Understand the Error
+
+- Read the full error message
+- Identify the error type (TypeScript, runtime, GraphQL, etc.)
+- Locate the source file and line
+
+### 2. Trace the Data Flow
+
+Follow the clean architecture layers:
+
+```
+Component → Hook → Use Case → Repository → GraphQL
+    ↑         ↑        ↑           ↑          ↑
+  Props    Result   Result     Result     Response
+```
+
+### 3. Check Each Layer
+
+#### GraphQL Issues
+
+- Verify query/mutation in GraphQL playground
+- Check generated types are up to date (`pnpm codegen`)
+- Verify schema matches server
+
+#### Infrastructure Issues
+
+- Check mapper is parsing data correctly
+- Verify Apollo client configuration
+- Check Result is being returned (not thrown)
+
+#### Application Issues
+
+- Verify use case receives correct repository
+- Check Result handling in hooks
+- Verify state updates correctly
+
+#### Component Issues
+
+- Check props are passed correctly
+- Verify hooks are called with correct arguments
+- Check conditional rendering logic
+
+## Common Issues
+
+### "Property X does not exist on type Y"
+
+- Schema might be outdated: run `pnpm codegen`
+- Mapper might not include the field
+- Entity schema might be missing the property
+
+### "Cannot read property of undefined"
+
+- Check null/undefined handling in Result pattern
+- Verify data exists before accessing
+- Check optional chaining is used
+
+### "Result is not ok"
+
+- Check the error code and message
+- Trace back to repository to find root cause
+- Verify external service (API) is working
+
+### Hooks returning stale data
+
+- Check dependencies array in useCallback/useMemo
+- Verify refetch is called after mutations
+- Check Apollo cache configuration
+
+## Debugging Tools
+
+```typescript
+// Add temporary logging in hooks
+console.log('Hook state:', { data, isLoading, isError, error });
+
+// Log Result in use cases
+const result = await repo.findAll();
+console.log('Repository result:', result);
+
+// Log mapped data in repositories
+const mapped = entities.map(Mapper.toDomain);
+console.log('Mapped entities:', mapped);
+```
+
+## Testing the Fix
+
+1. Write a failing test that reproduces the bug
+2. Fix the code until test passes
+3. Remove temporary debugging code
+4. Run full test suite

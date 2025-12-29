@@ -1,0 +1,64 @@
+---
+description: Rules for creating/editing domain entities with Zod
+globs:
+  - 'packages/domain/**/entities/**/*.ts'
+  - '!**/*.test.ts'
+alwaysApply: false
+---
+
+# Domain Entity Rules
+
+When creating or editing domain entities:
+
+## Required Structure
+
+```typescript
+import { z } from 'zod';
+
+/**
+ * [EntityName] Entity Schema
+ *
+ * [Brief description of what this entity represents]
+ */
+export const [EntityName]Schema = z.object({
+  id: z.string(),
+  // ... properties
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export type [EntityName] = z.infer<typeof [EntityName]Schema>;
+
+/**
+ * Input schema for creating a new [EntityName]
+ */
+export const Create[EntityName]InputSchema = z.object({
+  // ... required creation fields (NO id, createdAt, updatedAt)
+});
+
+export type Create[EntityName]Input = z.infer<typeof Create[EntityName]InputSchema>;
+
+/**
+ * Input schema for updating a [EntityName]
+ */
+export const Update[EntityName]InputSchema = z.object({
+  // ... all fields optional
+});
+
+export type Update[EntityName]Input = z.infer<typeof Update[EntityName]InputSchema>;
+```
+
+## Rules
+
+- ✅ Use Zod schemas as the single source of truth
+- ✅ Export both Schema and inferred Type
+- ✅ Create separate Input schemas for Create/Update operations
+- ✅ Add JSDoc comments explaining the entity purpose
+- ✅ Use `z.coerce.date()` for date fields
+- ❌ NEVER use classes for entities
+- ❌ NEVER add methods to entities (keep them pure data)
+- ❌ NEVER import from infrastructure or application layers
+
+## Example Reference
+
+See: `packages/domain/src/features/tasks/entities/task.ts`

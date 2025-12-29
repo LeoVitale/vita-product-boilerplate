@@ -1,0 +1,81 @@
+---
+description: Guide for AI to use templates when generating code
+globs: []
+alwaysApply: false
+---
+
+# Code Generation with Templates
+
+When generating new code, use the templates in `.cursor/templates/` as reference.
+
+## Template Reference
+
+### Domain Layer
+
+- **Entity**: `.cursor/templates/entity.template.ts`
+  - Use when creating Zod schemas and types
+  - Includes main entity, create input, update input
+
+- **Repository Interface**: `.cursor/templates/repository-interface.template.ts`
+  - Use when defining repository contracts
+  - Includes standard CRUD + custom operations
+
+### Application Layer
+
+- **Use Case**: `.cursor/templates/use-case.template.ts`
+  - Use when creating use cases
+  - Includes interface + implementation + examples
+
+- **Hook**: `.cursor/templates/hook.template.ts`
+  - Use when creating React hooks
+  - Includes query, mutation, and combined hooks
+
+### Infrastructure Layer
+
+- **Apollo Repository**: `.cursor/templates/apollo-repository.template.ts`
+  - Use when implementing repositories with Apollo
+  - Includes error handling and caching patterns
+
+- **Mapper**: `.cursor/templates/mapper.template.ts`
+  - Use when creating data mappers
+  - Includes toDomain, toGraphQL, and safe variants
+
+### Testing
+
+- **Test File**: `.cursor/templates/test.template.ts`
+  - Use when writing tests
+  - Includes examples for each layer
+
+## Replacement Pattern
+
+When using templates, replace:
+
+| Placeholder     | Replace With       | Example                      |
+| --------------- | ------------------ | ---------------------------- |
+| `EntityName`    | PascalCase         | `UserProfile`                |
+| `entityName`    | camelCase          | `userProfile`                |
+| `entity-name`   | kebab-case         | `user-profile`               |
+| `[description]` | Actual description | "User profile with settings" |
+
+## Example Workflow
+
+When asked to "create a UserProfile feature":
+
+1. Read template files for understanding
+2. Apply entity template → `packages/domain/src/features/user-profiles/entities/user-profile.ts`
+3. Apply repository-interface template → `packages/domain/src/features/user-profiles/repositories/user-profile-repository.interface.ts`
+4. Apply use-case template → `packages/application/src/features/user-profiles/use-cases/`
+5. Apply apollo-repository template → `packages/infrastructure/src/features/user-profiles/repositories/`
+6. Apply hook template → `packages/infrastructure/src/features/user-profiles/hooks/`
+7. Create tests alongside each file
+
+## Quality Checks
+
+After generating code:
+
+- [ ] All imports are valid
+- [ ] Naming conventions are consistent
+- [ ] JSDoc comments are filled in
+- [ ] Result pattern is used (no throws)
+- [ ] Tests are created
+- [ ] Public API exports are added to index.ts

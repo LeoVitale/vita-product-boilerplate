@@ -1,0 +1,80 @@
+---
+description: Guidelines for safe refactoring operations
+globs: []
+alwaysApply: false
+---
+
+# Refactoring Guidelines
+
+Use this guide when asked to refactor, reorganize, or improve code.
+
+## Before Refactoring
+
+1. **Understand the scope**: Read all affected files first
+2. **Check existing tests**: Ensure tests exist and pass
+3. **Identify dependencies**: Find all imports of the code being changed
+
+## Safe Refactoring Steps
+
+### Renaming
+
+1. Use IDE refactoring (not find-replace)
+2. Update all imports
+3. Update all references in docs
+4. Run tests to verify
+
+### Moving Files
+
+1. Create new file in target location
+2. Update all imports to use new path
+3. Update package exports (index.ts)
+4. Delete old file
+5. Run typecheck and tests
+
+### Extracting
+
+When extracting code to a new module:
+
+1. Identify the cohesive piece of code
+2. Create new file with appropriate name
+3. Move code to new file
+4. Export from new file
+5. Import in original location
+6. Update package exports if public
+7. Run tests
+
+## Architecture-Safe Refactoring
+
+### Moving Between Layers
+
+❌ **NEVER** move code that would violate layer dependencies:
+
+- Domain code importing infrastructure
+- Application code importing from apps
+
+✅ **ALWAYS** check dependency direction:
+
+```
+apps → infrastructure → application → domain
+       ↘               ↘              ↓
+        application → domain ←────────┘
+```
+
+### Feature Extraction
+
+When extracting a new feature:
+
+1. Create new feature folder in each layer
+2. Move related code maintaining layer boundaries
+3. Update all internal imports
+4. Update public exports (index.ts)
+5. Add new exports to package index.ts
+
+## Checklist
+
+- [ ] All tests pass before starting
+- [ ] No circular dependencies introduced
+- [ ] Layer boundaries respected
+- [ ] Public API (exports) maintained or intentionally changed
+- [ ] Docs updated if behavior changed
+- [ ] All tests pass after completion

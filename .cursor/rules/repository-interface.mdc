@@ -1,0 +1,67 @@
+---
+description: Rules for creating repository interfaces (contracts)
+globs:
+  - 'packages/domain/**/repositories/**/*.ts'
+  - '!**/*.test.ts'
+alwaysApply: false
+---
+
+# Repository Interface Rules
+
+When creating or editing repository interfaces:
+
+## Required Structure
+
+```typescript
+import { Result } from '../../../shared/core/result';
+import { [EntityName], Create[EntityName]Input } from '../entities/[entity-name]';
+import { DomainError } from '../../../shared/errors/domain-errors';
+
+/**
+ * [EntityName] Repository Interface
+ *
+ * Defines the contract for [entity] data operations. Implementations
+ * can use any data source (GraphQL, REST, local storage, etc.)
+ * while the application layer remains agnostic.
+ */
+export interface [EntityName]RepositoryInterface {
+  /**
+   * Retrieves all [entities]
+   */
+  findAll(): Promise<Result<[EntityName][], DomainError>>;
+
+  /**
+   * Retrieves a [entity] by ID
+   */
+  findById(id: string): Promise<Result<[EntityName] | null, DomainError>>;
+
+  /**
+   * Creates a new [entity]
+   */
+  create(input: Create[EntityName]Input): Promise<Result<[EntityName], DomainError>>;
+
+  /**
+   * Updates an existing [entity]
+   */
+  update(id: string, input: Update[EntityName]Input): Promise<Result<[EntityName], DomainError>>;
+
+  /**
+   * Deletes a [entity] by ID
+   */
+  delete(id: string): Promise<Result<[EntityName], DomainError>>;
+}
+```
+
+## Rules
+
+- ✅ Return `Result<T, DomainError>` for ALL methods (never throw)
+- ✅ Use domain types (entities, inputs) - never raw GraphQL/API types
+- ✅ Keep interface focused on data operations only
+- ✅ Add JSDoc for each method
+- ✅ Name: `[EntityName]RepositoryInterface`
+- ❌ NEVER include implementation details
+- ❌ NEVER import from infrastructure layer
+
+## Example Reference
+
+See: `packages/domain/src/features/tasks/repositories/task-repository.interface.ts`

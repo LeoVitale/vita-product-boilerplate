@@ -1,0 +1,105 @@
+---
+description: Rules for creating React components in apps
+globs:
+  - 'apps/**/*.tsx'
+  - 'packages/ui/**/*.tsx'
+  - '!**/*.test.tsx'
+alwaysApply: false
+---
+
+# React Component Rules
+
+When creating or editing React components:
+
+## Required Structure
+
+```tsx
+import { FC } from 'react';
+
+interface [ComponentName]Props {
+  // Define all props with JSDoc
+  /** Description of the prop */
+  propName: PropType;
+}
+
+/**
+ * [ComponentName]
+ *
+ * [Brief description of what this component does]
+ */
+export const [ComponentName]: FC<[ComponentName]Props> = ({
+  propName,
+}) => {
+  // Hooks at the top
+  const { data, isLoading, isError } = useHook();
+
+  // Early returns for loading/error states
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (isError) {
+    return <ErrorMessage />;
+  }
+
+  // Main render
+  return (
+    <div>
+      {/* Component content */}
+    </div>
+  );
+};
+```
+
+## Rules
+
+- ✅ Use functional components with `FC<Props>` type
+- ✅ Define Props interface above component
+- ✅ Add JSDoc comments for component and props
+- ✅ Use hooks from `@repo/application` or `@repo/infrastructure`
+- ✅ Handle loading and error states
+- ✅ Keep components focused (Single Responsibility)
+- ❌ NEVER define use cases or business logic in components
+- ❌ NEVER make direct GraphQL/API calls
+- ❌ NEVER use classes for components
+
+## Composition Root Pattern
+
+In app pages, instantiate repositories and pass to hooks:
+
+```tsx
+// apps/web/app/tasks/page.tsx
+'use client';
+
+import { useMemo } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { ApolloTaskRepository } from '@repo/infrastructure';
+import { useTasks } from '@repo/infrastructure';
+
+export default function TasksPage() {
+  const client = useApolloClient();
+
+  // Composition Root: create repository instance
+  const taskRepository = useMemo(
+    () => new ApolloTaskRepository(client),
+    [client],
+  );
+
+  // Use composed hook or pass repository
+  const { data: tasks, isLoading } = useTasks(taskRepository);
+
+  return <TaskList tasks={tasks} isLoading={isLoading} />;
+}
+```
+
+## File Organization
+
+Use co-location pattern:
+
+```
+components/TaskCard/
+├── TaskCard.tsx
+├── TaskCard.test.tsx
+├── TaskCard.module.css  # or styled components
+└── index.ts
+```

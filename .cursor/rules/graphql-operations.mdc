@@ -1,0 +1,102 @@
+---
+description: Rules for creating GraphQL operations
+globs:
+  - 'packages/graphql/**/*.graphql'
+  - 'packages/graphql/**/*.gql'
+alwaysApply: false
+---
+
+# GraphQL Operations Rules
+
+When creating or editing GraphQL documents:
+
+## File Organization
+
+```
+packages/graphql/src/
+├── operations/
+│   ├── tasks/
+│   │   ├── queries.graphql    # All queries for this feature
+│   │   └── mutations.graphql  # All mutations for this feature
+│   └── users/
+│       ├── queries.graphql
+│       └── mutations.graphql
+└── fragments/
+    ├── task.fragment.graphql
+    └── user.fragment.graphql
+```
+
+## Query Structure
+
+```graphql
+# Fragment for reusable fields
+fragment TaskFields on Task {
+  id
+  title
+  description
+  completed
+  createdAt
+  updatedAt
+}
+
+# Query with fragment
+query GetTasks {
+  tasks {
+    ...TaskFields
+  }
+}
+
+query GetTask($id: ID!) {
+  task(id: $id) {
+    ...TaskFields
+  }
+}
+```
+
+## Mutation Structure
+
+```graphql
+mutation CreateTask($input: CreateTaskInput!) {
+  createTask(input: $input) {
+    ...TaskFields
+  }
+}
+
+mutation UpdateTask($id: ID!, $input: UpdateTaskInput!) {
+  updateTask(id: $id, input: $input) {
+    ...TaskFields
+  }
+}
+
+mutation DeleteTask($id: ID!) {
+  deleteTask(id: $id) {
+    id
+  }
+}
+```
+
+## Naming Convention
+
+- Queries: `Get[Entity]` or `Get[Entities]`
+- Mutations: `Create[Entity]`, `Update[Entity]`, `Delete[Entity]`
+- Fragments: `[Entity]Fields`
+
+## Rules
+
+- ✅ Use fragments for reusable field sets
+- ✅ Always include `id` in responses
+- ✅ Group operations by feature
+- ✅ Use Input types for complex arguments
+- ✅ Return the modified entity from mutations
+- ❌ NEVER over-fetch (request only needed fields)
+- ❌ NEVER hardcode IDs or values
+
+## Code Generation
+
+After adding/modifying documents:
+
+```bash
+pnpm codegen
+```
+
+This generates TypeScript types and document nodes in `packages/graphql/src/generated/`.

@@ -1,0 +1,115 @@
+---
+description: Guide for creating a complete new feature across all layers
+globs: []
+alwaysApply: false
+---
+
+# Feature Generator Guide
+
+Use this guide when asked to "create a new feature" or "add a new entity".
+
+## Feature Structure
+
+A complete feature requires files in 3 packages:
+
+```
+packages/domain/src/features/[feature-name]/
+├── entities/
+│   ├── [entity].ts          # Zod schema + types
+│   ├── [entity].test.ts     # Schema validation tests
+│   └── index.ts
+├── repositories/
+│   ├── [entity]-repository.interface.ts
+│   └── index.ts
+├── contracts/               # Optional: DTOs, value objects
+│   └── index.ts
+└── index.ts                 # Public API
+
+packages/application/src/features/[feature-name]/
+├── use-cases/
+│   ├── get-[entities].use-case.ts
+│   ├── get-[entities].use-case.test.ts
+│   ├── create-[entity].use-case.ts
+│   └── index.ts
+├── hooks/
+│   ├── use-[entities].ts
+│   └── index.ts
+├── factories/               # Optional: composition helpers
+│   └── index.ts
+└── index.ts                 # Public API
+
+packages/infrastructure/src/features/[feature-name]/
+├── repositories/
+│   ├── apollo-[entity].repository.ts
+│   ├── apollo-[entity].repository.test.ts
+│   └── index.ts
+├── mappers/
+│   ├── [entity].mapper.ts
+│   └── index.ts
+├── hooks/                   # Composed hooks with real repos
+│   ├── use-[entities].ts
+│   └── index.ts
+└── index.ts                 # Public API
+```
+
+## Step-by-Step Creation Order
+
+### 1. Domain Layer (packages/domain)
+
+```bash
+# Create feature folder
+mkdir -p packages/domain/src/features/[feature-name]/{entities,repositories,contracts}
+```
+
+1. Create entity with Zod schema
+2. Create repository interface
+3. Export from index.ts
+4. Add to main domain index.ts
+
+### 2. Application Layer (packages/application)
+
+1. Create use cases (one per action)
+2. Create hooks that accept repository
+3. Export from index.ts
+4. Add to main application index.ts
+
+### 3. Infrastructure Layer (packages/infrastructure)
+
+1. Create GraphQL documents in `packages/graphql` first
+2. Create mapper (GraphQL -> Domain)
+3. Create Apollo repository implementation
+4. Create composed hooks (with real repository)
+5. Export from index.ts
+
+### 4. Update Exports
+
+Add to each package's main `src/index.ts`:
+
+```typescript
+export * from './features/[feature-name]';
+```
+
+## TDD Reminder
+
+For each file, write the test FIRST:
+
+1. Write failing test (Red)
+2. Implement minimal code (Green)
+3. Refactor (Refactor)
+
+## Naming Convention
+
+- Feature folder: kebab-case plural (`user-profiles`)
+- Entity file: kebab-case singular (`user-profile.ts`)
+- Schema: PascalCase + Schema (`UserProfileSchema`)
+- Type: PascalCase (`UserProfile`)
+- Repository Interface: PascalCase + RepositoryInterface (`UserProfileRepositoryInterface`)
+- Use Case: PascalCase action + entity + UseCase (`GetUserProfilesUseCase`)
+- Hook: camelCase use + action + entity (`useGetUserProfiles`)
+
+## Documentation Reminder
+
+After creating the feature, update:
+
+- `docs/reference/glossary.*.md` with new terminology
+- `docs/workflows/adding-a-feature.*.md` if process changed

@@ -1,0 +1,92 @@
+---
+description: Rules for implementing Apollo Client repositories
+globs:
+  - 'packages/infrastructure/**/repositories/**/*.ts'
+  - '!**/*.test.ts'
+alwaysApply: false
+---
+
+# Apollo Repository Implementation Rules
+
+When creating or editing repository implementations:
+
+## Required Structure
+
+```typescript
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import {
+  [EntityName]RepositoryInterface,
+  [EntityName],
+  Create[EntityName]Input,
+  Result,
+  DomainError,
+  ok,
+  fail,
+} from '@repo/domain';
+import { [Entity]Mapper } from '../mappers/[entity].mapper';
+import {
+  Get[Entities]Document,
+  Create[Entity]Document,
+  // ... other documents
+} from '@repo/graphql';
+
+/**
+ * Apollo Client implementation of [EntityName]RepositoryInterface
+ *
+ * Handles all GraphQL operations for [entities] and maps
+ * API responses to domain entities.
+ */
+export class Apollo[EntityName]Repository implements [EntityName]RepositoryInterface {
+  constructor(private readonly client: ApolloClient<NormalizedCacheObject>) {}
+
+  async findAll(): Promise<Result<[EntityName][], DomainError>> {
+    try {
+      const { data } = await this.client.query({
+        query: Get[Entities]Document,
+        fetchPolicy: 'network-only',
+      });
+
+      const entities = data.[entities].map([Entity]Mapper.toDomain);
+      return ok(entities);
+    } catch (error) {
+      return fail({
+        code: 'FETCH_FAILED',
+        message: 'Failed to fetch [entities]',
+        cause: error,
+      });
+    }
+  }
+
+  // ... other methods follow same pattern
+}
+```
+
+## Rules
+
+- ✅ Implement the domain repository interface exactly
+- ✅ Use Mappers to convert GraphQL types to domain entities
+- ✅ Wrap all operations in try/catch, return Result
+- ✅ Use generated documents from `@repo/graphql`
+- ✅ Keep Apollo-specific logic contained here
+- ❌ NEVER expose GraphQL types outside this layer
+- ❌ NEVER throw errors - always return Result
+
+## Mapper Pattern
+
+Each repository should have a corresponding mapper:
+
+```typescript
+// mappers/[entity].mapper.ts
+export class [Entity]Mapper {
+  static toDomain(raw: GraphQL[Entity]): [EntityName] {
+    return [EntityName]Schema.parse({
+      id: raw.id,
+      // ... map fields
+    });
+  }
+}
+```
+
+## Example Reference
+
+See: `packages/infrastructure/src/features/tasks/repositories/`

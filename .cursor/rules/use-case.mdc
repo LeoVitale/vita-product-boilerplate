@@ -1,0 +1,64 @@
+---
+description: Rules for creating use cases in the application layer
+globs:
+  - 'packages/application/**/use-cases/**/*.ts'
+  - '!**/*.test.ts'
+alwaysApply: false
+---
+
+# Use Case Rules
+
+When creating or editing use cases:
+
+## Required Structure
+
+```typescript
+import {
+  [EntityName],
+  [EntityName]RepositoryInterface,
+  Result,
+  DomainError,
+} from '@repo/domain';
+
+export interface I[Action][EntityName]UseCase {
+  execute(input?: InputType): Promise<Result<OutputType, DomainError>>;
+}
+
+/**
+ * Use case for [action description]
+ *
+ * [Detailed description of what this use case does]
+ */
+export class [Action][EntityName]UseCase implements I[Action][EntityName]UseCase {
+  constructor(private readonly [entityName]Repo: [EntityName]RepositoryInterface) {}
+
+  async execute(input?: InputType): Promise<Result<OutputType, DomainError>> {
+    // Business logic here
+    return this.[entityName]Repo.someMethod(input);
+  }
+}
+```
+
+## Naming Convention
+
+- `Get[Entity]UseCase` - Fetch single entity
+- `Get[Entities]UseCase` - Fetch list (plural)
+- `Create[Entity]UseCase` - Create operation
+- `Update[Entity]UseCase` - Update operation
+- `Delete[Entity]UseCase` - Delete operation
+- `Toggle[Entity][Property]UseCase` - Toggle boolean property
+
+## Rules
+
+- ✅ Define interface (I[UseCase]) and class separately
+- ✅ Inject repositories via constructor (Dependency Inversion)
+- ✅ Return `Result<T, DomainError>` from execute()
+- ✅ Keep use cases small and focused (Single Responsibility)
+- ✅ Add business logic validation before repository calls
+- ❌ NEVER import from infrastructure layer
+- ❌ NEVER use React/hooks inside use cases
+- ❌ NEVER access external services directly (use repositories)
+
+## Example Reference
+
+See: `packages/application/src/features/tasks/use-cases/get-tasks.use-case.ts`
