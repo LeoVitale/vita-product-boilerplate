@@ -1,0 +1,180 @@
+---
+alwaysApply: true
+---
+
+# Data Fetching Patterns - Apollo Client
+
+This project uses **Apollo Client** for GraphQL data fetching. This rule supersedes any user rules mentioning React Query.
+
+## Architecture Overview
+
+```
+Component → Application Hook → Context → Infrastructure Hook → Apollo Client
+```
+
+## Layer Responsibilities
+
+### Domain Layer (`@repo/domain`)
+
+- Define **hook contracts** (interfaces) in `contracts/`
+- **Do not** place Apollo, React Query, or data-fetching code here
+
+```typescript
+// packages/domain/src/features/tasks/contracts/tasks-query.interface.ts
+export interface TasksQueryResult {
+  data: Task[] | null;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => Promise<void>;
+}
+
+export type TasksQueryInterface = () => TasksQueryResult;
+```
+
+### Application Layer (`@repo/application`)
+
+- Create **Context-based hooks** that accept hook implementations via DI
+- **Do not** use Apollo directly - depend on contracts only
+
+```typescript
+// packages/application/src/features/tasks/hooks/use-get-tasks.ts
+import { createContext, useContext } from 'react';
+import { TasksQueryInterface, TasksQueryResult } from '@repo/domain';
+
+const TasksQueryContext = createContext<TasksQueryInterface | null>(null);
+
+export const TasksQueryProvider = TasksQueryContext.Provider;
+
+export function useGetTasks(): TasksQueryResult {
+  const query = useContext(TasksQueryContext);
+  if (!query) {
+    throw new Error('useGetTasks must be used within TasksQueryProvider');
+  }
+  return query();
+}
+```
+
+### Infrastructure Layer (`@repo/infrastructure`)
+
+- Create **Apollo hooks** that implement domain contracts
+- Handle Apollo-specific concerns (cache, optimistic updates, fetchPolicy)
+
+```typescript
+// packages/infrastructure/src/features/tasks/hooks/use-apollo-tasks-query.ts
+import { useQuery } from '@apollo/client';
+import { GetTasksDocument } from '@repo/graphql';
+import { TasksQueryResult } from '@repo/domain';
+import { TaskMapper } from '../mappers';
+
+export function useApolloTasksQuery(): TasksQueryResult {
+  const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
+    fetchPolicy: 'cache-and-network',
+  });
+
+  return {
+    data: data?.tasks ? TaskMapper.toDomainList(data.tasks) : null,
+    isLoading: loading,
+    isError: !!error,
+    error: error ? new Error(error.message) : null,
+    refetch: async () => {
+      await refetch();
+    },
+  };
+}
+```
+
+### Composition Root (`apps/web`, `apps/mobile`)
+
+- Wire up infrastructure hooks with application providers
+
+```typescript
+// apps/web/src/providers/UseCasesProvider.tsx
+import { useApolloTasksQuery } from '@repo/infrastructure';
+import { TasksQueryProvider } from '@repo/application';
+
+<TasksQueryProvider value={useApolloTasksQuery}>
+  {children}
+</TasksQueryProvider>
+```
+
+## Repository Pattern with Apollo
+
+For imperative data access (not hooks), use repositories:
+
+```typescript
+// packages/infrastructure/src/features/tasks/repositories/apollo-task-repository.ts
+export class ApolloTaskRepository implements TaskRepositoryInterface {
+  constructor(private readonly client: GraphQLClient) {}
+
+  async findAll(): Promise<Result<Task[], DomainError>> {
+    try {
+      const { data } = await this.client.query({
+        query: GetTasksDocument,
+        fetchPolicy: 'network-only',
+      });
+
+      const tasks = data?.tasks ? TaskMapper.toDomainList(data.tasks) : [];
+      return success(tasks);
+    } catch (error) {
+      return failure({
+        code: 'FETCH_FAILED',
+        message: 'Failed to fetch tasks',
+        cause: error,
+      });
+    }
+  }
+}
+```
+
+## Hook Return Contract
+
+ALL query hooks MUST return this shape (Liskov Substitution):
+
+```typescript
+{
+  data: T | null;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => Promise<void>;
+}
+```
+
+## Mutation Hook Return Contract
+
+ALL mutation hooks MUST return this shape:
+
+```typescript
+{
+  mutate: (input: TInput) => Promise<boolean>;
+  data: T | null;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+}
+```
+
+## Rules Summary
+
+- ✅ Define hook contracts in domain layer
+- ✅ Create Context-based hooks in application layer
+- ✅ Implement Apollo hooks in infrastructure layer
+- ✅ Wire up in Composition Root
+- ✅ Use mappers to convert GraphQL responses to domain entities
+- ✅ Return Result types from repositories
+- ❌ NEVER import Apollo in application layer
+- ❌ NEVER use useQuery/useMutation directly in components
+- ❌ NEVER return raw GraphQL types to UI
+
+## Testing Strategy
+
+- **Application hooks**: Mock the context value
+- **Infrastructure hooks**: Mock Apollo client
+- **Repositories**: Mock GraphQL client interface
+
+## GraphQL Integration
+
+- Define operations in `packages/graphql/src/operations/`
+- Run `pnpm codegen` to generate TypeScript types
+- Import generated documents: `import { GetTasksDocument } from '@repo/graphql'`
