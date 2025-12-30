@@ -20,6 +20,7 @@ If you are new to the repo, follow this learning path:
    - [Mappers and Boundaries](./patterns/mappers-and-boundaries.en.md)
    - [Performance Optimization](./patterns/performance-optimization.en.md) ⭐ NEW - Decision framework for optimizations
 3. **Workflows (how to build features here)**
+   - [Spec-Driven Development (SDD)](./workflows/spec-driven-development.en.md) ⭐ NEW - AI-assisted development with Spec Kit
    - [Adding a Feature](./workflows/adding-a-feature.en.md)
    - [TDD Workflow (Vitest)](./workflows/tdd.en.md)
 4. **Reference**

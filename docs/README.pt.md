@@ -20,6 +20,7 @@ Se voce e novo no repositorio, siga este caminho:
    - [Mappers e Boundaries](./patterns/mappers-and-boundaries.pt.md)
    - [Otimizacao de Performance](./patterns/performance-optimization.pt.md) ⭐ NEW - Framework de decisao para otimizacoes
 3. **Workflows (como construir features aqui)**
+   - [Spec-Driven Development (SDD)](./workflows/spec-driven-development.pt.md) ⭐ NEW - Desenvolvimento assistido por IA com Spec Kit
    - [Criando uma Feature](./workflows/adding-a-feature.pt.md)
    - [Workflow de TDD (Vitest)](./workflows/tdd.pt.md)
 4. **Referencia**
