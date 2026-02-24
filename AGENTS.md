@@ -195,3 +195,33 @@ Detailed rules are in `.cursor/rules/`:
 - `application-hook.mdc` - Hook creation guide
 - `feature-generator.mdc` - Complete feature guide
 - `vitest-tests.mdc` - Test writing guide
+
+## Cursor Cloud specific instructions
+
+### Services overview
+
+| Service       | Port | Command                                               |
+| ------------- | ---- | ----------------------------------------------------- |
+| PostgreSQL    | 5432 | `pnpm docker:up` (requires Docker)                    |
+| API (NestJS)  | 4000 | `pnpm --filter api dev`                               |
+| Web (Next.js) | 3000 | `pnpm dev:web` (starts web + graphql codegen watcher) |
+| Mobile (Expo) | 8081 | `pnpm --filter @repo/mobile dev` (optional)           |
+
+### Startup sequence
+
+1. Start Docker and PostgreSQL: `sudo dockerd &>/tmp/dockerd.log &` then `pnpm docker:up`
+2. Run Prisma migrations: `pnpm --filter api prisma:generate && pnpm --filter api prisma:migrate:dev`
+3. Generate GraphQL types: `pnpm generate`
+4. Start API: `pnpm --filter api dev` (background)
+5. Start Web: `pnpm dev:web` (background) or use `pnpm dev` for all apps
+
+### Gotchas
+
+- The API `.env.example` uses database name `vita_dev` but Docker creates `vita_db`. When copying `.env.example` to `.env` in `apps/api/`, change `vita_dev` to `vita_db` in `DATABASE_URL`.
+- `pnpm dev:web` uses `--filter=web...` which does **not** start the API server. Start the API separately with `pnpm --filter api dev`.
+- `pnpm test` will fail because `apps/api` has `--passWithNoTests` not configured and ships with no `.spec.ts` files. Use `pnpm test:web` to run all passing tests (domain, application, infrastructure, web).
+- `pnpm lint` has pre-existing warnings in `@repo/mobile` and `web` (display-name). Use `pnpm --filter api lint` or `pnpm lint:web` for scoped checks.
+- `pnpm check-types` has a pre-existing type error in `@repo/mobile`. Use `pnpm check-types:web` for the web stack.
+- Docker in this cloud VM requires `fuse-overlayfs` storage driver and `iptables-legacy`. See the environment setup for details.
+- Prisma client must be regenerated after schema changes: `pnpm --filter api prisma:generate`.
+- GraphQL types must be regenerated after schema changes: `pnpm generate`.
